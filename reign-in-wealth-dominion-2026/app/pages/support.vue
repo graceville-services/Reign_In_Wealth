@@ -2,7 +2,7 @@
 import SupportSection from '~/components/SupportSection.vue'
 
 useHead({
-  title: 'Sponsors & Donations — Reign in Wealth Conference 2026'
+  title: 'Support — Reign in Wealth Conference 2026',
 })
 </script>
 

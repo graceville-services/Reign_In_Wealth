@@ -1,21 +1,111 @@
+import type { Ticket } from '~/data/site'
+
+type Attendee = {
+  name: string
+  email: string
+}
+
+type CheckoutResponse = {
+  url?: string
+  sessionId?: string
+  error?: string
+}
+
+const STORAGE_KEY = 'dominion_checkout'
+
 export function useTicketCheckout() {
   const loading = ref(false)
   const error = ref('')
-  const checkout = async (ticketId: string, quantity: number, attendee: { name: string; email: string }) => {
+
+  const saveCheckoutSession = (
+    ticket: Ticket,
+    quantity: number,
+    attendee: Attendee,
+  ) => {
+    if (!import.meta.client) return
+
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        ticketId: ticket.id,
+        ticketName: ticket.name,
+        quantity,
+        attendeeName: attendee.name,
+        attendeeEmail: attendee.email,
+        createdAt: new Date().toISOString(),
+      }),
+    )
+  }
+
+  const getSavedCheckout = () => {
+    if (!import.meta.client) return null
+
+    const saved = sessionStorage.getItem(STORAGE_KEY)
+
+    if (!saved) return null
+
+    try {
+      return JSON.parse(saved)
+    } catch {
+      sessionStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+  }
+
+  const clearCheckoutSession = () => {
+    if (!import.meta.client) return
+
+    sessionStorage.removeItem(STORAGE_KEY)
+  }
+
+  const checkout = async (
+    ticket: Ticket,
+    quantity: number,
+    attendee: Attendee,
+  ) => {
     loading.value = true
     error.value = ''
+
     try {
-      const result = await $fetch<{ url?: string; error?: string }>('/api/checkout', {
-        method: 'POST',
-        body: { ticketId, quantity, attendee }
-      })
-      if (!result.url) throw new Error(result.error || 'Checkout could not be started.')
+      // Remember the checkout in the browser.
+      saveCheckoutSession(ticket, quantity, attendee)
+
+      const result = await $fetch<CheckoutResponse>(
+        '/api/checkout',
+        {
+          method: 'POST',
+
+          body: {
+            ticketId: ticket.id,
+            quantity,
+            attendee,
+          },
+        },
+      )
+
+      if (!result.url) {
+        throw new Error(
+          result.error || 'Checkout could not be started.',
+        )
+      }
+
       window.location.href = result.url
     } catch (err: any) {
-      error.value = err?.data?.message || err?.message || 'Something went wrong. Please try again.'
+      error.value =
+        err?.data?.message ||
+        err?.data?.statusMessage ||
+        err?.message ||
+        'Something went wrong. Please try again.'
     } finally {
       loading.value = false
     }
   }
-  return { loading, error, checkout }
+
+  return {
+    loading,
+    error,
+    checkout,
+    getSavedCheckout,
+    clearCheckoutSession,
+  }
 }

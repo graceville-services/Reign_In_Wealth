@@ -1,40 +1,310 @@
 <script setup lang="ts">
-import { X, ShieldCheck, Minus, Plus, ArrowRight, LoaderCircle } from 'lucide-vue-next'
+import { X, ArrowUpRight, Minus, Plus, ShieldCheck } from 'lucide-vue-next'
 import type { Ticket } from '~/data/site'
-const props = defineProps<{ open: boolean; ticket: Ticket | null }>()
-const emit = defineEmits<{ close: []; success: [] }>()
+
+const props = defineProps<{
+  open: boolean
+  ticket: Ticket | null
+}>()
+
+const emit = defineEmits<{
+  close: []
+}>()
+
+const {
+  checkout,
+  loading,
+  error,
+} = useTicketCheckout()
+
+const attendeeName = ref('')
+const attendeeEmail = ref('')
 const quantity = ref(1)
-const name = ref('')
-const email = ref('')
-const { loading, error, checkout } = useTicketCheckout()
-watch(() => props.ticket, () => { quantity.value = 1; error.value = '' })
-const submit = async () => {
-  if (!props.ticket || !name.value.trim() || !email.value.trim()) return
-  await checkout(props.ticket.id, quantity.value, { name: name.value.trim(), email: email.value.trim() })
+
+const total = computed(() => {
+  if (!props.ticket) return 0
+
+  return props.ticket.price * quantity.value
+})
+
+const canCheckout = computed(() => {
+  return (
+    !!props.ticket &&
+    attendeeName.value.trim().length >= 2 &&
+    attendeeEmail.value.includes('@') &&
+    quantity.value >= 1 &&
+    !loading.value
+  )
+})
+
+const increaseQuantity = () => {
+  if (quantity.value < 20) {
+    quantity.value++
+  }
 }
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value--
+  }
+}
+
+const close = () => {
+  if (loading.value) return
+
+  emit('close')
+}
+
+const submitCheckout = async () => {
+  if (!props.ticket || !canCheckout.value) return
+
+  await checkout(
+    props.ticket,
+    quantity.value,
+    {
+      name: attendeeName.value.trim(),
+      email: attendeeEmail.value.trim().toLowerCase(),
+    },
+  )
+}
+
+watch(
+  () => props.open,
+  (open) => {
+    if (import.meta.client) {
+      document.body.style.overflow = open ? 'hidden' : ''
+    }
+
+    if (open) {
+      error.value = ''
+    }
+  },
+)
+
+onUnmounted(() => {
+  if (import.meta.client) {
+    document.body.style.overflow = ''
+  }
+})
 </script>
+
 <template>
   <Teleport to="body">
-    <Transition name="drawer">
-      <div v-if="open" class="fixed inset-0 z-[100] flex justify-end">
-        <button class="absolute inset-0 bg-forest/35 backdrop-blur-sm" aria-label="Close checkout" @click="emit('close')" />
-        <aside class="relative flex h-full w-full max-w-xl flex-col overflow-y-auto border-l border-forest/10 bg-cream p-5 shadow-2xl sm:p-8">
-          <div class="flex items-center justify-between"><div><div class="eyebrow">SECURE CHECKOUT</div><h2 class="mt-2 font-serif text-3xl">Reserve your place.</h2></div><button class="grid h-10 w-10 place-items-center border border-forest/10" aria-label="Close" @click="emit('close')"><X :size="18" /></button></div>
-          <div v-if="ticket" class="mt-8 border border-primary/20 bg-white/60 p-5"><div class="flex justify-between gap-5"><div><p class="font-mono text-[9px] uppercase tracking-[.18em] text-primary">Selected experience</p><p class="mt-2 font-serif text-2xl">{{ ticket.name }}</p></div><div class="text-right"><p class="font-serif text-2xl">${{ ticket.price * quantity }}</p><p class="text-[10px] text-forest/35">{{ quantity }} ticket{{ quantity > 1 ? 's' : '' }}</p></div></div></div>
-          <form class="mt-8 flex flex-1 flex-col" @submit.prevent="submit">
-            <div class="space-y-5"><label class="block"><span class="field-label">Full name</span><input v-model="name" required autocomplete="name" class="field" placeholder="Your name" /></label><label class="block"><span class="field-label">Email address</span><input v-model="email" required type="email" autocomplete="email" class="field" placeholder="you@example.com" /></label>
-              <div><span class="field-label">Quantity</span><div class="flex items-center justify-between border border-forest/15 p-2"><button type="button" class="grid h-10 w-10 place-items-center bg-forest/5" :disabled="quantity <= 1" @click="quantity--"><Minus :size="15" /></button><span class="font-mono text-sm">{{ quantity }}</span><button type="button" class="grid h-10 w-10 place-items-center bg-forest/5" :disabled="quantity >= 8" @click="quantity++"><Plus :size="15" /></button></div></div>
+    <Transition name="fade">
+      <div
+        v-if="open && ticket"
+        class="fixed inset-0 z-[100] flex items-end justify-end"
+      >
+        <!-- Backdrop -->
+        <button
+          type="button"
+          aria-label="Close checkout"
+          class="absolute inset-0 bg-black/75 backdrop-blur-sm"
+          @click="close"
+        />
+
+        <!-- Drawer -->
+        <aside
+          class="relative z-10 flex h-full w-full max-w-xl flex-col overflow-y-auto bg-cream text-ink shadow-2xl"
+        >
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-ink/10 px-6 py-5 md:px-8">
+            <div>
+              <div class="eyebrow text-gold-dark">
+                SECURE CHECKOUT
+              </div>
+
+              <h2 class="display mt-2 text-3xl md:text-4xl">
+                Your place in the room.
+              </h2>
             </div>
-            <div class="mt-auto pt-8"><p v-if="error" class="mb-4 border border-red-400/20 bg-red-400/5 p-3 text-xs leading-5 text-red-200">{{ error }}</p><button :disabled="loading || !ticket" class="button-primary w-full py-4 disabled:cursor-not-allowed disabled:opacity-50"> <LoaderCircle v-if="loading" :size="16" class="animate-spin" /> <span v-else class="inline-flex items-center gap-2">Continue to secure payment <ArrowRight :size="16" /></span></button><div class="mt-4 flex items-center justify-center gap-2 text-[10px] text-forest/30"><ShieldCheck :size="14" /> Payments powered by Stripe</div></div>
-          </form>
+
+            <button
+              type="button"
+              aria-label="Close"
+              class="grid h-11 w-11 shrink-0 place-items-center border border-ink/10 text-ink transition hover:border-gold-dark hover:text-gold-dark"
+              @click="close"
+            >
+              <X :size="19" />
+            </button>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 px-6 py-7 md:px-8 md:py-9">
+
+            <!-- Ticket -->
+            <div class="border border-ink/10 bg-white/45 p-5">
+              <div class="flex items-start justify-between gap-5">
+                <div>
+                  <div class="font-mono text-[9px] font-bold uppercase tracking-[.18em] text-gold-dark">
+                    {{ ticket.eyebrow }}
+                  </div>
+
+                  <h3 class="mt-2 font-serif text-2xl">
+                    {{ ticket.name }}
+                  </h3>
+                </div>
+
+                <div class="font-serif text-2xl">
+                  ${{ ticket.price }}
+                </div>
+              </div>
+
+              <!-- Quantity -->
+              <div class="mt-6 flex items-center justify-between border-t border-ink/10 pt-5">
+                <div>
+                  <div class="text-xs font-bold uppercase tracking-[.12em]">
+                    Quantity
+                  </div>
+
+                  <div class="mt-1 text-xs text-ink/55">
+                    How many seats?
+                  </div>
+                </div>
+
+                <div class="flex items-center border border-ink/15">
+                  <button
+                    type="button"
+                    class="grid h-10 w-10 place-items-center transition hover:bg-ink hover:text-cream"
+                    :disabled="quantity <= 1"
+                    @click="decreaseQuantity"
+                  >
+                    <Minus :size="14" />
+                  </button>
+
+                  <span class="grid h-10 w-12 place-items-center border-x border-ink/15 font-mono text-sm">
+                    {{ quantity }}
+                  </span>
+
+                  <button
+                    type="button"
+                    class="grid h-10 w-10 place-items-center transition hover:bg-ink hover:text-cream"
+                    :disabled="quantity >= 20"
+                    @click="increaseQuantity"
+                  >
+                    <Plus :size="14" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-5 flex items-end justify-between border-t border-ink/10 pt-5">
+                <span class="text-xs font-bold uppercase tracking-[.12em]">
+                  Total
+                </span>
+
+                <span class="font-serif text-3xl">
+                  ${{ total }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Attendee -->
+            <div class="mt-8">
+              <div class="eyebrow text-gold-dark">
+                ATTENDEE DETAILS
+              </div>
+
+              <div class="mt-5 space-y-5">
+
+                <label class="block">
+                  <span class="mb-2 block text-[10px] font-extrabold uppercase tracking-[.16em]">
+                    Full name
+                  </span>
+
+                  <input
+                    v-model="attendeeName"
+                    type="text"
+                    autocomplete="name"
+                    placeholder="Your full name"
+                    class="w-full border border-ink/15 bg-white px-4 py-4 text-sm outline-none transition placeholder:text-ink/30 focus:border-gold-dark"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-[10px] font-extrabold uppercase tracking-[.16em]">
+                    Email address
+                  </span>
+
+                  <input
+                    v-model="attendeeEmail"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="you@example.com"
+                    class="w-full border border-ink/15 bg-white px-4 py-4 text-sm outline-none transition placeholder:text-ink/30 focus:border-gold-dark"
+                  />
+
+                  <p class="mt-2 text-xs leading-5 text-ink/50">
+                    Your confirmation and private venue details will be sent to this email.
+                  </p>
+                </label>
+
+              </div>
+            </div>
+
+            <!-- Non refundable -->
+            <div class="mt-7 flex gap-3 border border-gold-dark/25 bg-gold/5 p-4">
+              <ShieldCheck
+                :size="17"
+                class="mt-0.5 shrink-0 text-gold-dark"
+              />
+
+              <p class="text-xs leading-6 text-ink/70">
+                By continuing, you acknowledge that ticket purchases are
+                <strong class="text-ink">
+                  non-refundable.
+                </strong>
+              </p>
+            </div>
+
+            <!-- Error -->
+            <div
+              v-if="error"
+              class="mt-5 border border-red-900/20 bg-red-50 p-4 text-sm leading-6 text-red-900"
+            >
+              {{ error }}
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="border-t border-ink/10 bg-cream-2 px-6 py-5 md:px-8">
+            <button
+              type="button"
+              :disabled="!canCheckout"
+              class="flex w-full items-center justify-center gap-2 bg-gold px-5 py-4 text-[10px] font-extrabold uppercase tracking-[.18em] text-black transition hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-40"
+              @click="submitCheckout"
+            >
+              <span v-if="loading">
+                Taking you to secure checkout...
+              </span>
+
+              <span v-else>
+                Continue to Stripe
+                <ArrowUpRight
+                  :size="15"
+                  class="ml-1 inline"
+                />
+              </span>
+            </button>
+
+            <p class="mt-3 text-center text-[10px] leading-5 text-ink/45">
+              Secure payment powered by Stripe.
+            </p>
+          </div>
         </aside>
       </div>
     </Transition>
   </Teleport>
 </template>
+
 <style scoped>
-@reference "~/assets/css/main.css";
-.field-label { @apply mb-2 block font-mono text-[9px] font-medium uppercase tracking-[.18em] text-forest/45; }
-.field { @apply w-full border border-forest/15 bg-white/40 px-4 py-3.5 text-sm text-forest outline-none transition placeholder:text-forest/25 focus:border-primary focus:bg-white/[.04]; }
-.drawer-enter-active,.drawer-leave-active { transition: opacity .25s ease; } .drawer-enter-active aside,.drawer-leave-active aside { transition: transform .35s cubic-bezier(.2,.8,.2,1); } .drawer-enter-from,.drawer-leave-to { opacity: 0; } .drawer-enter-from aside,.drawer-leave-to aside { transform: translateX(100%); }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

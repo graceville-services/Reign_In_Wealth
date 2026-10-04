@@ -4,49 +4,56 @@ import { site } from '~/data/site'
 </script>
 
 <template>
-  <section class="relative overflow-hidden bg-cream-2" id="support">
-    <div class="absolute -right-32 top-20 h-96 w-96 rounded-full border border-primary/10" />
-    <div class="absolute -left-32 bottom-0 h-72 w-72 rounded-full border border-primary/10" />
+  <section
+    id="support"
+    class="relative overflow-hidden border-t border-forest/10 bg-cream-2"
+  >
+    <!-- ARCHITECTURAL DETAIL -->
+    <div
+      class="pointer-events-none absolute -right-40 top-24 h-[32rem] w-[32rem] rounded-full border border-gold/15"
+    />
+
+    <div
+      class="pointer-events-none absolute -left-40 bottom-[-8rem] h-80 w-80 rounded-full border border-gold/10"
+    />
 
     <div class="section-pad relative z-10">
-
-      <!-- SECTION INTRO -->
-      <div class="mx-auto max-w-3xl text-center">
+      <!-- INTRO -->
+      <div class="max-w-4xl">
         <div class="eyebrow">
-          PARTNER · SUPPORT · IMPACT
+          SUPPORT THE WORK
         </div>
 
-        <h2 class="display mt-5 text-5xl md:text-7xl">
-          Help build what lasts.
+        <h2 class="display mt-5 max-w-3xl text-6xl leading-[.92] text-forest md:text-8xl">
+          Help make the room possible.
         </h2>
 
-        <p class="mx-auto mt-6 max-w-2xl text-sm leading-8 text-forest/60 md:text-base">
-          DOMINION is more than a conference. It is a platform for ownership,
-          wealth creation, purpose, faith, and generational impact.
+        <p class="mt-7 max-w-2xl text-sm leading-8 text-forest/75 md:text-base">
+          DOMINION is built around people, ideas, and opportunities that can
+          continue long after the weekend is over. There are a few ways to
+          support the work behind it.
         </p>
       </div>
 
-      <!-- TWO SUPPORT OPTIONS -->
+      <!-- SUPPORT OPTIONS -->
       <div class="mt-14 grid gap-5 lg:grid-cols-2">
-
         <!-- SPONSORSHIP -->
         <article
-          class="group relative overflow-hidden border border-forest/10 bg-forest p-8 text-cream transition duration-500 hover:-translate-y-1 hover:border-primary/50 md:p-10"
+          class="group relative overflow-hidden border border-white/10 bg-black p-8 text-cream transition duration-500 hover:-translate-y-1 md:p-10"
         >
           <div
-            class="absolute -right-20 -top-20 h-64 w-64 rounded-full border border-primary/20 transition duration-700 group-hover:scale-125"
+            class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-gold/15 transition duration-700 group-hover:scale-110"
           />
 
           <div class="relative z-10">
-
             <div
-              class="grid h-12 w-12 place-items-center border border-primary/40 bg-primary/10 text-primary-light"
+              class="grid h-12 w-12 place-items-center border border-gold/35 text-gold"
             >
-              <Handshake :size="21" />
+              <Handshake :size="20" stroke-width="1.5" />
             </div>
 
-            <div class="mt-10">
-              <div class="eyebrow !text-primary-light">
+            <div class="mt-12">
+              <div class="eyebrow !text-gold">
                 {{ site.support.sponsorship.eyebrow }}
               </div>
 
@@ -54,14 +61,16 @@ import { site } from '~/data/site'
                 {{ site.support.sponsorship.title }}
               </h3>
 
-              <p class="mt-5 max-w-xl text-sm leading-7 text-cream/60">
+              <p
+                class="mt-5 max-w-xl text-sm leading-7 text-cream/50"
+              >
                 {{ site.support.sponsorship.body }}
               </p>
             </div>
 
             <a
               :href="`mailto:${site.support.sponsorship.email}`"
-              class="button-primary mt-8"
+              class="button-gold mt-8"
             >
               {{ site.support.sponsorship.cta }}
               <ArrowUpRight :size="16" />
@@ -71,22 +80,21 @@ import { site } from '~/data/site'
 
         <!-- DONATIONS -->
         <article
-          class="group relative overflow-hidden border border-primary/20 bg-sage/40 p-8 transition duration-500 hover:-translate-y-1 hover:border-primary/60 md:p-10"
+          class="group relative overflow-hidden border border-forest/10 bg-[#E9E5DB] p-8 text-forest transition duration-500 hover:-translate-y-1 hover:border-gold/50 md:p-10"
         >
           <div
-            class="absolute -bottom-24 -right-24 h-72 w-72 rounded-full border border-primary/15 transition duration-700 group-hover:scale-125"
+            class="pointer-events-none absolute -bottom-28 -right-28 h-80 w-80 rounded-full border border-gold/20 transition duration-700 group-hover:scale-110"
           />
 
           <div class="relative z-10">
-
             <div
-              class="grid h-12 w-12 place-items-center border border-primary/40 bg-primary/10 text-primary"
+              class="grid h-12 w-12 place-items-center border border-gold/40 text-gold-dark"
             >
-              <Heart :size="21" />
+              <Heart :size="20" stroke-width="1.5" />
             </div>
 
-            <div class="mt-10">
-              <div class="eyebrow">
+            <div class="mt-12">
+              <div class="eyebrow !text-gold-dark">
                 {{ site.support.donations.eyebrow }}
               </div>
 
@@ -94,7 +102,9 @@ import { site } from '~/data/site'
                 {{ site.support.donations.title }}
               </h3>
 
-              <p class="mt-5 max-w-xl text-sm leading-7 text-forest/60">
+              <p
+                class="mt-5 max-w-xl text-sm leading-7 text-forest/55"
+              >
                 {{ site.support.donations.body }}
               </p>
             </div>
@@ -110,44 +120,7 @@ import { site } from '~/data/site'
             </a>
           </div>
         </article>
-
       </div>
-
-      <!-- SPONSOR LOGOS -->
-      <div class="mt-20">
-
-        <div class="flex items-center justify-between gap-6">
-          <div>
-            <div class="eyebrow">
-              OUR PARTNERS
-            </div>
-
-            <h3 class="display mt-3 text-3xl md:text-4xl">
-              Sponsors & partners
-            </h3>
-          </div>
-
-          <div class="hidden h-px flex-1 bg-forest/10 md:block" />
-        </div>
-
-        <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-
-          <div
-            v-for="sponsor in site.sponsors"
-            :key="sponsor.name"
-            class="group grid min-h-[130px] place-items-center border border-forest/10 bg-white/40 p-6 transition duration-500 hover:-translate-y-1 hover:border-primary/40"
-          >
-            <img
-              :src="sponsor.logo"
-              :alt="sponsor.name"
-              class="max-h-16 max-w-[150px] object-contain opacity-60 grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0"
-            />
-          </div>
-
-        </div>
-
-      </div>
-
     </div>
   </section>
 </template>

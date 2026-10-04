@@ -1,15 +1,188 @@
 <script setup lang="ts">
-import { ArrowUpRight, Check, ShieldCheck } from 'lucide-vue-next'
+import { ArrowDown, ShieldCheck } from 'lucide-vue-next'
 import { site, type Ticket } from '~/data/site'
 import CheckoutDrawer from '~/components/CheckoutDrawer.vue'
+import TicketCard from '~/components/TicketCard.vue'
+
 const { revealAll } = useReveal()
+
 const selectedTicket = ref<Ticket | null>(null)
-useHead({ title: 'Tickets — DOMINION 2026' })
-onMounted(() => revealAll())
+
+useHead({
+  title: 'Tickets — DOMINION 2026',
+})
+
+onMounted(() => {
+  revealAll()
+})
 </script>
+
 <template>
-  <div class="pt-[76px]"><section class="bg-forest text-cream"><div class="section-pad grid gap-10 md:grid-cols-[1fr_.65fr] md:items-end"><div class="reveal"><div class="eyebrow !text-primary-light">ADMISSION</div><h1 class="display mt-5 text-6xl md:text-8xl">Choose your way into DOMINION.</h1></div><div class="reveal"><p class="text-sm leading-8 text-cream/60">Separate ticket choices, no endless scrolling. Select an experience and continue to secure payment.</p></div></div></section>
-    <section><div class="section-pad"><div class="grid gap-4 lg:grid-cols-3"><article v-for="ticket in site.tickets" :key="ticket.id" class="reveal relative flex flex-col border p-7 transition duration-500 hover:-translate-y-2" :class="ticket.featured ? 'border-primary bg-primary text-white soft-shadow' : 'border-forest/10 bg-white/50'"><div v-if="ticket.featured" class="absolute right-5 top-5 rounded-full bg-white/20 px-3 py-1 font-mono text-[9px] uppercase tracking-[.15em]">Featured</div><div class="font-mono text-[9px] font-bold uppercase tracking-[.2em]" :class="ticket.featured ? 'text-white/70' : 'text-primary'">{{ ticket.eyebrow }}</div><h2 class="mt-4 font-serif text-3xl">{{ ticket.name }}</h2><div class="mt-7 font-serif text-5xl">${{ ticket.price }}</div><p class="mt-4 min-h-[72px] text-sm leading-6" :class="ticket.featured ? 'text-white/70' : 'text-forest/50'">{{ ticket.description }}</p><div class="my-7 h-px" :class="ticket.featured ? 'bg-white/20' : 'bg-forest/10'"/><ul class="space-y-3 text-sm"><li v-for="feature in ticket.features" :key="feature" class="flex gap-3"><Check :size="15" class="mt-0.5 shrink-0" :class="ticket.featured ? 'text-white' : 'text-primary'"/><span :class="ticket.featured ? 'text-white/80' : 'text-forest/65'">{{ feature }}</span></li></ul><button class="mt-8 flex w-full items-center justify-center gap-2 border px-4 py-4 text-xs font-extrabold uppercase tracking-[.16em] transition" :class="ticket.featured ? 'border-white bg-white text-forest hover:bg-transparent hover:text-white' : 'border-forest/15 hover:border-primary hover:text-primary'" @click="selectedTicket = ticket">Buy ticket <ArrowUpRight :size="15"/></button></article></div><div class="mt-8 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[.16em] text-forest/35"><ShieldCheck :size="14" class="text-primary"/> Secure checkout via Stripe</div></div></section>
-    <CheckoutDrawer :open="!!selectedTicket" :ticket="selectedTicket" @close="selectedTicket = null"/>
+  <div class="pt-[76px]">
+
+    <!-- HERO -->
+    <section class="relative min-h-[520px] overflow-hidden bg-black text-cream">
+      <!-- Background -->
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        style="
+          background-image:
+            url('https://images.pexels.com/photos/17527817/pexels-photo-17527817.jpeg?_gl=1*1w9346i*_ga*MTcxMTE5NTQyNy4xNzkxMTI0MDU0*_ga_8JE65Q40S6*czE3OTExMjQwNTQkbzEkZzEkdDE3OTExMjQyNzEkajYwJGwwJGgw');
+        "
+      />
+
+      <!-- Cinematic overlays -->
+      <div class="absolute inset-0 bg-black/50" />
+      <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/40" />
+      <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 to-transparent" />
+
+      <!-- Content -->
+      <div class="relative z-10">
+        <div class="section-pad flex min-h-[520px] items-end">
+          <div class="max-w-4xl pb-4">
+
+            <div class="eyebrow !text-gold">
+              ADMISSION · DOMINION 2026
+            </div>
+
+            <h1 class="display mt-5 text-6xl leading-[.9] md:text-8xl">
+              Choose your way
+              <span class="block text-gold">
+                into DOMINION.
+              </span>
+            </h1>
+
+            <p class="mt-7 max-w-2xl text-sm leading-8 text-cream/80 md:text-base">
+              Choose the experience that fits how you want to be part
+              of the Reign in Wealth Conference weekend.
+            </p>
+
+            <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3">
+              <div class="font-mono text-[9px] font-bold uppercase tracking-[.16em] text-cream/55">
+                Dec 11–12, 2026
+              </div>
+
+              <div class="font-mono text-[9px] font-bold uppercase tracking-[.16em] text-cream/55">
+                Yonkers, New York
+              </div>
+            </div>
+
+            <a
+              href="#tickets"
+              class="mt-9 inline-flex items-center gap-2 border border-gold/50 bg-black/20 px-5 py-3 text-[10px] font-extrabold uppercase tracking-[.18em] text-gold backdrop-blur-sm transition hover:bg-gold hover:text-black"
+            >
+              View tickets
+              <ArrowDown :size="14" />
+            </a>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TICKETS -->
+    <section
+      id="tickets"
+      class="bg-cream text-forest"
+    >
+      <div class="section-pad">
+
+        <!-- HEADER -->
+        <div class="mb-12 max-w-3xl">
+          <div class="eyebrow">
+            YOUR EXPERIENCE
+          </div>
+
+          <h2 class="display mt-4 text-5xl leading-none md:text-6xl">
+            One weekend.
+            <span class="text-primary">
+              Three ways in.
+            </span>
+          </h2>
+
+          <p class="mt-5 max-w-2xl text-sm leading-7 text-forest/65">
+            Whether you want the complete conference experience, deeper
+            VIP access, or simply want to join us for the Gala, there is
+            a place for you at DOMINION.
+          </p>
+        </div>
+
+        <!-- TICKET GRID -->
+        <div class="grid gap-5 lg:grid-cols-3">
+          <div
+            v-for="ticket in site.tickets"
+            :key="ticket.id"
+            class="h-full"
+          >
+            <TicketCard
+              :ticket="ticket"
+              @buy="selectedTicket = $event"
+            />
+          </div>
+        </div>
+
+        <!-- GALA NOTICE -->
+        <div
+          class="mt-8 border border-gold/40 bg-black p-6 text-cream md:p-8"
+        >
+          <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+
+            <div class="flex gap-4">
+              <div
+                class="grid h-10 w-10 shrink-0 place-items-center border border-gold/40 text-gold"
+              >
+                <ShieldCheck :size="18" />
+              </div>
+
+              <div>
+                <div
+                  class="font-mono text-[9px] font-bold uppercase tracking-[.18em] text-gold"
+                >
+                  Included with Regular + VIP
+                </div>
+
+                <h3 class="mt-2 font-serif text-2xl text-cream">
+                  The Fundraising Gala is included.
+                </h3>
+
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-cream/60">
+                  All Regular and VIP Conference Tickets include access to
+                  the Reign in Wealth Fundraising Gala on Saturday evening.
+                  Gala-only tickets are also available for $197.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="shrink-0 font-mono text-[10px] font-bold uppercase tracking-[.16em] text-gold"
+            >
+              Saturday · 7:00 PM
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SECURE CHECKOUT -->
+        <div
+          class="mt-8 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-[.16em] text-forest/65"
+        >
+          <ShieldCheck
+            :size="15"
+            class="text-gold-dark"
+          />
+
+          Secure checkout via Stripe
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CHECKOUT -->
+    <CheckoutDrawer
+      :open="!!selectedTicket"
+      :ticket="selectedTicket"
+      @close="selectedTicket = null"
+    />
+
   </div>
 </template>
