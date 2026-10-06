@@ -12,11 +12,63 @@ import SupportSection from '~/components/SupportSection.vue'
 
 const { revealAll } = useReveal()
 
-useSiteSeo({
-  title: 'DOMINION',
+useSeo({
+  title: 'DOMINION | Reign in Wealth Conference 2026',
   description:
-    'DOMINION — Reign in Wealth Conference 2026. A two-day experience centered on faith, ownership, entrepreneurship, real estate, wealth, and impact.',
+    'DOMINION is the Reign in Wealth Conference 2026 — a gathering for people ready to occupy, build, multiply and reign.',
   path: '/',
+})
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Event',
+
+        name: 'DOMINION — Reign in Wealth Conference 2026',
+
+        description:
+          'DOMINION is the Reign in Wealth Conference 2026 — a gathering focused on wealth, leadership, business, connection and growth.',
+
+        startDate: '2026-12-11T12:00:00-05:00',
+        endDate: '2026-12-12T20:00:00-05:00',
+
+        eventStatus:
+          'https://schema.org/EventScheduled',
+
+        eventAttendanceMode:
+          'https://schema.org/OfflineEventAttendanceMode',
+
+        location: {
+          '@type': 'Place',
+          name:
+            config.public.siteUrl
+              ? 'DOMINION 2026 Venue'
+              : 'DOMINION 2026 Venue',
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: 'Yonkers',
+            addressRegion: 'NY',
+            addressCountry: 'US',
+          },
+        },
+
+        image: [
+          `${config.public.siteUrl}/images/og-image.png`,
+        ],
+
+        organizer: {
+          '@type': 'Organization',
+          name: 'Reign in Wealth',
+          url: config.public.siteUrl,
+        },
+
+        url: config.public.siteUrl,
+      }),
+    },
+  ],
 })
 
 

@@ -10,8 +10,11 @@ import { site } from '~/data/site'
 
 const { revealAll } = useReveal()
 
-useHead({
-  title: 'The Experience — DOMINION 2026',
+useSeo({
+  title: 'Schedule & Experience | DOMINION 2026',
+  description:
+    'Explore the DOMINION 2026 conference schedule, experiences, sessions and events taking place December 11–12, 2026.',
+  path: '/schedule',
 })
 
 onMounted(() => revealAll())

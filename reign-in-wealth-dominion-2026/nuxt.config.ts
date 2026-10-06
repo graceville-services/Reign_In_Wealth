@@ -28,6 +28,18 @@ export default defineNuxtConfig({
         lang: 'en',
       },
 
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/png',
+          href: '/images/logo.png',
+        },
+        {
+          rel: 'apple-touch-icon',
+          href: '/images/logo.png',
+        },
+      ],
+
       meta: [
         {
           name: 'theme-color',
@@ -37,12 +49,88 @@ export default defineNuxtConfig({
         {
           name: 'description',
           content:
-            'DOMINION — Reign in Wealth Conference 2026. Occupy. Build. Multiply. Reign.',
+            'DOMINION — Reign in Wealth Conference 2026. A gathering for people ready to occupy, build, multiply and reign.',
         },
 
         {
           name: 'author',
           content: 'Reign in Wealth',
+        },
+
+        {
+          name: 'robots',
+          content: 'index, follow, max-image-preview:large',
+        },
+
+        {
+          name: 'googlebot',
+          content: 'index, follow, max-image-preview:large',
+        },
+
+        // Open Graph defaults
+        {
+          property: 'og:type',
+          content: 'website',
+        },
+
+        {
+          property: 'og:site_name',
+          content: 'DOMINION — Reign in Wealth Conference 2026',
+        },
+
+        {
+          property: 'og:title',
+          content: 'DOMINION | Reign in Wealth Conference 2026',
+        },
+
+        {
+          property: 'og:description',
+          content:
+            'Occupy. Build. Multiply. Reign. Join DOMINION — Reign in Wealth Conference 2026.',
+        },
+
+        {
+          property: 'og:image',
+          content: '/images/logo.png',
+        },
+
+        {
+          property: 'og:image:alt',
+          content:
+            'DOMINION — Reign in Wealth Conference 2026',
+        },
+
+        {
+          property: 'og:image:type',
+          content: 'image/png',
+        },
+
+        // Twitter / X
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image',
+        },
+
+        {
+          name: 'twitter:title',
+          content: 'DOMINION | Reign in Wealth Conference 2026',
+        },
+
+        {
+          name: 'twitter:description',
+          content:
+            'Occupy. Build. Multiply. Reign. Join DOMINION — Reign in Wealth Conference 2026.',
+        },
+
+        {
+          name: 'twitter:image',
+          content: '/images/logo.png',
+        },
+
+        {
+          name: 'twitter:image:alt',
+          content:
+            'DOMINION — Reign in Wealth Conference 2026',
         },
       ],
     },

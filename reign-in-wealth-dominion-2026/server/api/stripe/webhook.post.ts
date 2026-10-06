@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { sendTicketWelcomeEmail } from '~/server/utils/ticketEmail'
+import { sendTicketWelcomeEmail } from '#imports'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 

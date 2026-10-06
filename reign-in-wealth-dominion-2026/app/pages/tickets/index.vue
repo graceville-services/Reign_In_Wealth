@@ -8,8 +8,11 @@ const { revealAll } = useReveal()
 
 const selectedTicket = ref<Ticket | null>(null)
 
-useHead({
-  title: 'Tickets — DOMINION 2026',
+useSeo({
+  title: 'Tickets | DOMINION 2026',
+  description:
+    'Secure your place at DOMINION — Reign in Wealth Conference 2026. Explore available tickets and choose your conference experience.',
+  path: '/tickets',
 })
 
 onMounted(() => {

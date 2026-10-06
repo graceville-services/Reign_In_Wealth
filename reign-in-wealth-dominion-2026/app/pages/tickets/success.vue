@@ -23,8 +23,20 @@ const {
   clearCheckoutSession,
 } = useTicketCheckout()
 
+useSeo({
+  title: 'Registration Confirmed | DOMINION 2026',
+  description:
+    'Your DOMINION 2026 registration has been confirmed.',
+  path: '/success',
+})
+
 useHead({
-  title: 'Registration Confirmed — DOMINION 2026',
+  meta: [
+    {
+      name: 'robots',
+      content: 'noindex, nofollow',
+    },
+  ],
 })
 
 onMounted(async () => {
