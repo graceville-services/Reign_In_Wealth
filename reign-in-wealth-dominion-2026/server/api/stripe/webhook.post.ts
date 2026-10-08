@@ -1,13 +1,32 @@
 import Stripe from 'stripe'
 import { sendTicketWelcomeEmail } from '#imports'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
 export default defineEventHandler(async (event) => {
-  const signature = getHeader(
-    event,
-    'stripe-signature',
-  )
+  const config = useRuntimeConfig()
+
+  // --------------------------------
+  // Stripe configuration
+  // --------------------------------
+  if (!config.stripeSecretKey) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Stripe secret key is not configured.',
+    })
+  }
+
+  if (!config.stripeWebhookSecret) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Stripe webhook secret is not configured.',
+    })
+  }
+
+  const stripe = new Stripe(config.stripeSecretKey)
+
+  // --------------------------------
+  // Stripe signature
+  // --------------------------------
+  const signature = getHeader(event, 'stripe-signature')
 
   if (!signature) {
     throw createError({
@@ -16,16 +35,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const webhookSecret =
-    process.env.STRIPE_WEBHOOK_SECRET
-
-  if (!webhookSecret) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Stripe webhook secret is not configured.',
-    })
-  }
-
+  // --------------------------------
+  // IMPORTANT:
+  // Stripe requires the EXACT raw request body
+  // for webhook signature verification.
+  // DO NOT use readBody(event) here.
+  // --------------------------------
   const rawBody = await readRawBody(event)
 
   if (!rawBody) {
@@ -35,18 +50,21 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // --------------------------------
+  // Verify Stripe webhook
+  // --------------------------------
   let stripeEvent: Stripe.Event
 
   try {
     stripeEvent = stripe.webhooks.constructEvent(
       rawBody,
       signature,
-      webhookSecret,
+      config.stripeWebhookSecret,
     )
   } catch (error: any) {
     console.error(
-      'Stripe webhook signature verification failed:',
-      error?.message,
+      '[Stripe] Webhook signature verification failed:',
+      error?.message || error,
     )
 
     throw createError({
@@ -55,125 +73,90 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  console.log(
-    `[Stripe] Received event: ${stripeEvent.type}`,
-  )
+  console.log(`[Stripe] Received event: ${stripeEvent.type}`)
 
   // --------------------------------
   // Completed Checkout
   // --------------------------------
-
-  if (
-    stripeEvent.type === 'checkout.session.completed'
-  ) {
-    const session =
-      stripeEvent.data.object as Stripe.Checkout.Session
-
+  if (stripeEvent.type === 'checkout.session.completed') {
+    const session = stripeEvent.data.object as Stripe.Checkout.Session
     await handlePaidCheckout(session)
   }
 
   // --------------------------------
   // Delayed payment completed
   // --------------------------------
-
-  if (
-    stripeEvent.type ===
-    'checkout.session.async_payment_succeeded'
-  ) {
-    const session =
-      stripeEvent.data.object as Stripe.Checkout.Session
-
+  if (stripeEvent.type === 'checkout.session.async_payment_succeeded') {
+    const session = stripeEvent.data.object as Stripe.Checkout.Session
     await handlePaidCheckout(session)
   }
 
-  return {
-    received: true,
-  }
+  // --------------------------------
+  // Tell Stripe the webhook was received
+  // --------------------------------
+  return { received: true }
 })
 
-
-async function handlePaidCheckout(
-  session: Stripe.Checkout.Session,
-) {
+// ========================================
+// PAID CHECKOUT HANDLER
+// ========================================
+async function handlePaidCheckout(session: Stripe.Checkout.Session) {
   // --------------------------------
-  // Only process actual paid sessions
+  // Only process actually paid sessions
   // --------------------------------
-
   if (session.payment_status !== 'paid') {
-    console.log(
-      `[Stripe] Session ${session.id} is not paid yet.`,
-    )
-
+    console.log(`[Stripe] Session ${session.id} is not paid yet.`)
     return
   }
 
+  // --------------------------------
+  // Session metadata
+  // --------------------------------
   const metadata = session.metadata || {}
 
   const ticketId = metadata.ticketId || ''
   const ticketName = metadata.ticketName || ''
   const attendeeName =
-    metadata.attendeeName ||
-    session.customer_details?.name ||
-    ''
-
+    metadata.attendeeName || session.customer_details?.name || ''
   const attendeeEmail =
     metadata.attendeeEmail ||
     session.customer_details?.email ||
     session.customer_email ||
     ''
 
-  const quantity = Number(
-    metadata.quantity || 1,
-  )
+  const quantity = Number(metadata.quantity || 1)
 
   // --------------------------------
-  // Validate information
+  // Validate ticket information
   // --------------------------------
-
   if (!ticketId) {
-    console.error(
-      `[Stripe] Missing ticketId for ${session.id}`,
-    )
-
+    console.error(`[Stripe] Missing ticketId for ${session.id}`)
     return
   }
 
   if (!ticketName) {
-    console.error(
-      `[Stripe] Missing ticketName for ${session.id}`,
-    )
-
+    console.error(`[Stripe] Missing ticketName for ${session.id}`)
     return
   }
 
   if (!attendeeName) {
-    console.error(
-      `[Stripe] Missing attendee name for ${session.id}`,
-    )
-
+    console.error(`[Stripe] Missing attendee name for ${session.id}`)
     return
   }
 
   if (!attendeeEmail) {
-    console.error(
-      `[Stripe] Missing attendee email for ${session.id}`,
-    )
-
+    console.error(`[Stripe] Missing attendee email for ${session.id}`)
     return
   }
 
   if (!Number.isInteger(quantity) || quantity < 1) {
-    console.error(
-      `[Stripe] Invalid quantity for ${session.id}`,
-    )
-
+    console.error(`[Stripe] Invalid quantity for ${session.id}`)
     return
   }
 
   // --------------------------------
   // Send welcome email
   // --------------------------------
-
   try {
     const email = await sendTicketWelcomeEmail({
       sessionId: session.id,
@@ -194,8 +177,11 @@ async function handlePaidCheckout(
     )
 
     // Throwing causes Stripe to retry the webhook.
-    // Resend's idempotency key prevents duplicate emails
-    // when the same request is retried.
+    //
+    // Your Resend email function already uses
+    // an idempotency key based on the Stripe
+    // session ID, so retries won't create
+    // duplicate emails.
     throw createError({
       statusCode: 500,
       statusMessage: 'Welcome email could not be sent.',

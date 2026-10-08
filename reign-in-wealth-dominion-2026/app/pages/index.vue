@@ -12,6 +12,8 @@ import SupportSection from '~/components/SupportSection.vue'
 
 const { revealAll } = useReveal()
 
+const config = useRuntimeConfig()
+
 useSeo({
   title: 'DOMINION | Reign in Wealth Conference 2026',
   description:
