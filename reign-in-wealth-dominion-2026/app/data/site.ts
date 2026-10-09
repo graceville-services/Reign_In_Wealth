@@ -36,74 +36,64 @@ export const site = {
       price: 250,
       currency: 'USD',
       stripePriceId: 'price_1UNBYMGclMcVOhpFTngOzz4H',
-
       eyebrow: 'THE DOMINION EXPERIENCE',
-
       description:
-        'The full DOMINION conference experience — from Friday evening’s opening through Saturday’s teaching, wellness, connection, and wealth-building sessions.',
-
+        'Experience DOMINION from Friday Opening Night through Saturday’s wellness experience, wealth-building sessions, expert panels, networking, and Fundraising Gala.',
       features: [
-        'Friday evening DOMINION Opening Experience',
-        'Saturday LIV Fitness Experience',
-        'Access to all Saturday main-stage sessions',
-        'Real estate, entrepreneurship, wealth-building & ownership sessions',
-        'Faith and personal development sessions',
-        'Conference networking experience',
-        'Access to the Reign in Wealth Fundraising Gala',
+        'Friday evening DOMINION Opening Night · 7:00 PM',
+        'Saturday LIV FIT: Strong Body, Strong Vision · 7:00 AM',
+        'The Dominion Main Conference',
+        'The Real Estate Investor’s Blueprint',
+        'From Land to Legacy',
+        'The Group Home Business Blueprint',
+        'Trading 101: Understanding the Markets',
+        'REITs: Real Estate Investing Without Buying a Property',
+        'The Dominion Wealth Panel',
+        'Beyond the License: The Real Estate Success Panel',
+        'Prophetic Intercession: Anointed to Build',
+        'Conference networking and educational experiences',
+        'Saturday Fundraising Gala · 7:00 PM',
       ],
-
       featured: false,
     },
-
     {
       id: 'vip',
       name: 'VIP Admission',
       price: 397,
       currency: 'USD',
       stripePriceId: 'price_1UNBYqGclMcVOhpFb48ZcYkR',
-
-      eyebrow: 'MOST COMPLETE EXPERIENCE',
-
+      eyebrow: 'ACCESS. STRATEGY. TRANSFORMATION.',
+      headline: 'Don’t Just Attend DOMINION. Experience It at Another Level.',
       description:
-        'The complete DOMINION experience, plus an exclusive Friday VIP afternoon designed for deeper access, conversation, strategy, and connection before the main conference begins.',
-
+        'Enjoy everything in Regular Admission, plus five exclusive VIP experiences on Friday from 12:00 PM–4:00 PM, designed for deeper access, strategy, and connection.',
       features: [
         'Everything included with Regular Admission',
-        'Exclusive VIP Experience · Friday 12 PM–4 PM',
+        'Exclusive Friday VIP Experience · 12:00 PM–4:00 PM',
+        'The Real Estate Career Pivot',
+        'The Wealth Accelerator',
         'Health Is My Wealth Panel',
-        'Intimate health + wealth conversation with selected experts',
-        'Exclusive VIP guest speaker',
-        'Additional wealth-building strategy session',
-        'VIP lunch included',
-        'Intimate VIP networking and conversation',
-        'Deeper Q&A and interaction with featured experts',
-        'Access to the Reign in Wealth Fundraising Gala',
+        'The Wealth & Wellness Inner Circle',
+        'VIP Networking Lunch',
+        'Intimate conversations, questions, and expert connections',
       ],
-
       featured: true,
     },
-
     {
       id: 'gala',
       name: 'Fundraising Gala Only',
       price: 197,
       currency: 'USD',
       stripePriceId: 'price_1UNBZIGclMcVOhpFSilUtAkJ',
-
       eyebrow: 'THE EVENING',
-
       description:
-        'Join us for the Reign in Wealth Fundraising Gala without attending the main conference. An evening of dinner, celebration, connection, philanthropy, and impact.',
-
+        'Join the Reign in Wealth Fundraising Gala for an elegant evening of celebration, philanthropy, purpose, impact, and meaningful connections.',
       features: [
-        'Saturday evening Gala admission',
+        'Saturday, December 12 · 7:00 PM',
+        'Fundraising Gala admission',
         'Gala experience and program',
-        'Dinner included',
         'Networking and celebration',
         'Fundraising and impact presentation',
-        'Special presentations and recognition, if applicable',
       ],
-
       featured: false,
     },
   ],
@@ -154,79 +144,121 @@ export const site = {
     {
       day: 'FRIDAY · DEC 11',
       time: '12:00 PM — 4:00 PM',
-      title: 'Exclusive VIP Experience',
+      title: 'The Dominion VIP Experience',
       type: 'VIP',
-      body: 'An exclusive afternoon for VIP guests featuring the Health Is My Wealth Panel, intimate health and wealth conversations, a special guest speaker, additional wealth-building strategy, VIP lunch, deeper Q&A, and intentional networking.',
+      body: 'Access. Strategy. Transformation. The exclusive Friday VIP program includes The Real Estate Career Pivot, The Wealth Accelerator, Health Is My Wealth, The Wealth & Wellness Inner Circle, and VIP Networking Lunch. Individual session times will be announced.',
     },
     {
       day: 'FRIDAY · DEC 11',
-      time: '4:00 PM — 7:00 PM',
-      title: 'Break / Prepare for Opening Night',
-      type: 'PAUSE',
-      body: 'A transition window before the main conference begins.',
+      time: 'Within the VIP program',
+      title: 'The Real Estate Career Pivot',
+      type: 'VIP',
+      body: 'From Career Change to Commission Checks. Join Kimona Hanson, her broker, and successful real estate professionals to explore entering the industry, building clientele, generating sales, and growing a real estate career.',
+    },
+    {
+      day: 'FRIDAY · DEC 11',
+      time: 'Within the VIP program',
+      title: 'The Wealth Accelerator',
+      type: 'VIP',
+      body: 'The Blueprint to Build, Protect & Multiply Your Money. Explore financial planning, investing, asset acquisition, wealth protection, and practical strategies for long-term financial growth.',
+    },
+    {
+      day: 'FRIDAY · DEC 11',
+      time: 'Within the VIP program',
+      title: 'Health Is My Wealth',
+      type: 'VIP',
+      body: 'The Ultimate Wealth & Wellness Conversation. An intimate panel with health and wellness professionals discussing physical health, mental wellness, prevention, longevity, and sustainable success.',
+    },
+    {
+      day: 'FRIDAY · DEC 11',
+      time: 'Within the VIP program',
+      title: 'The Wealth & Wellness Inner Circle',
+      type: 'VIP',
+      body: 'An intimate, interactive conversation about financial well-being, personal health, mindset, lifestyle, and building a life you can actually enjoy.',
+    },
+    {
+      day: 'FRIDAY · DEC 11',
+      time: 'Within the VIP program',
+      title: 'VIP Networking Lunch',
+      type: 'VIP',
+      body: 'Enjoy lunch while connecting with entrepreneurs and professionals, building relationships, and exchanging ideas in an intimate environment.',
     },
     {
       day: 'FRIDAY · DEC 11',
       time: '7:00 PM',
-      title: 'DOMINION Opening Experience',
+      title: 'DOMINION Opening Night',
       type: 'MAIN',
-      body: 'The official opening of DOMINION and the spiritual foundation for the weekend.',
+      body: 'The official opening of REIGN IN WEALTH CONFERENCE 2026. An evening of faith, vision, inspiration, and preparation for the next level of ownership, wealth, and impact.',
     },
     {
       day: 'SATURDAY · DEC 12',
       time: '7:00 AM',
-      title: 'LIV Fitness Experience',
+      title: 'LIV FIT: Strong Body, Strong Vision',
       type: 'WELLNESS',
-      body: 'Movement and wellness before the main conference sessions.',
+      body: 'Start the morning with movement, energy, and intentional wellness. Your health is part of your wealth.',
     },
     {
       day: 'SATURDAY · DEC 12',
-      time: '9:30 AM',
-      title: 'Main Session',
+      time: 'Time to be announced',
+      title: 'Prophetic Intercession: Anointed to Build',
       type: 'SESSION',
-      body: 'Teaching, conversation, strategy, and practical wealth-building.',
+      body: 'Praying Over Your Business, Finances & Territory. A time of prayer and prophetic intercession for entrepreneurs, professionals, and visionaries seeking God’s wisdom, direction, and favor.',
     },
     {
       day: 'SATURDAY · DEC 12',
-      time: '10:30 AM',
-      title: 'Main Session',
+      time: 'Time to be announced',
+      title: 'The Real Estate Investor’s Blueprint',
       type: 'SESSION',
-      body: 'Teaching, conversation, strategy, and practical wealth-building.',
+      body: 'From First Property to Wealth-Building Portfolio. Learn about identifying opportunities, financing, evaluating deals, and building assets through property ownership.',
     },
     {
       day: 'SATURDAY · DEC 12',
-      time: '12:30 PM',
-      title: 'Main Session',
+      time: 'Time to be announced',
+      title: 'From Land to Legacy',
       type: 'SESSION',
-      body: 'Teaching, conversation, strategy, and practical wealth-building.',
+      body: 'The Power of Real Estate Development. Explore land opportunities, planning, financing, construction, and creating long-term value through property development.',
     },
     {
       day: 'SATURDAY · DEC 12',
-      time: '1:30 PM',
-      title: 'Main Session',
+      time: 'Time to be announced',
+      title: 'The Group Home Business Blueprint',
       type: 'SESSION',
-      body: 'Teaching, conversation, strategy, and practical wealth-building.',
+      body: 'How to Turn Residential Real Estate Into a Purpose-Driven Business. Explore the group-home business model, operational considerations, licensing requirements, startup planning, and potential opportunities.',
     },
     {
       day: 'SATURDAY · DEC 12',
-      time: '2:30 PM',
-      title: 'Main Session',
+      time: 'Time to be announced',
+      title: 'Trading 101: Understanding the Markets',
       type: 'SESSION',
-      body: 'Teaching, conversation, strategy, and practical wealth-building.',
+      body: 'An Introduction to Trading, Risk & Opportunity. Understand financial markets, trading fundamentals, risk management, and what beginners should know before putting money into the market.',
     },
     {
       day: 'SATURDAY · DEC 12',
-      time: '3:30 PM',
-      title: 'Final Main Session',
+      time: 'Time to be announced',
+      title: 'REITs: Real Estate Investing Without Buying a Property',
       type: 'SESSION',
-      body: 'A final strategic session before the evening transition.',
+      body: 'Discover how Real Estate Investment Trusts work, how investors can gain exposure to income-producing properties, and the potential benefits and risks.',
+    },
+    {
+      day: 'SATURDAY · DEC 12',
+      time: 'Time to be announced',
+      title: 'The Dominion Wealth Panel',
+      type: 'PANEL',
+      body: 'Making Money Is One Thing. Building Wealth Is Another. Financial professionals, investors, and wealth-building experts discuss financial literacy, investing, asset protection, entrepreneurship, and generational wealth.',
+    },
+    {
+      day: 'SATURDAY · DEC 12',
+      time: 'Time to be announced',
+      title: 'Beyond the License: The Real Estate Success Panel',
+      type: 'PANEL',
+      body: 'From New Agent to Top Producer. Join Kimona Hanson, her broker, and successful Realtors to discuss lead generation, branding, finding clients, choosing a brokerage, joining a team, and building a consistent real estate business.',
     },
     {
       day: 'SATURDAY · DEC 12',
       time: '7:00 PM',
       title: 'Reign in Wealth Fundraising Gala',
       type: 'GALA',
-      body: 'An evening of dinner, purpose, impact, philanthropy, celebration, networking, fundraising, and special presentations.',
+      body: 'An elegant evening of celebration, philanthropy, purpose, impact, and meaningful connections.',
     },
   ],
 
@@ -312,6 +344,17 @@ export const site = {
     '/images/events/4.jpg',
     '/images/events/5.jpg',
     '/images/events/6.jpg',
+    '/images/events/exp1.jpg',
+    '/images/events/ex2.jpg',
+    '/images/events/exp3.jpg',
+    '/images/events/exp4.jpg',
+    '/images/events/exp5.jpg',
+    '/images/events/exp6.jpg',
+    '/images/events/exp7.jpg',
+    '/images/events/exp8.jpg',
+    '/images/events/exp9.jpg',
+    '/images/events/exp10.jpg',
+    '/images/events/exp11.jpg',
   ],
 
   testimonials: [
@@ -365,77 +408,71 @@ export const site = {
   faqs: [
     [
       'Where is the conference being held?',
-      'The conference is scheduled for Yonkers, New York. Final venue details can be added here when confirmed.',
+      'REIGN IN WEALTH CONFERENCE 2026 takes place in Yonkers, New York. Final venue details will be announced when confirmed.',
     ],
-
     [
       'What does Regular Admission include?',
-      'Regular Admission is $250 and includes the Friday evening DOMINION Opening Experience, Saturday LIV Fitness Experience, all Saturday main-stage sessions, conference networking, and access to the Reign in Wealth Fundraising Gala.',
+      'Regular Admission is $250 and includes Friday DOMINION Opening Night, Saturday LIV FIT, the Saturday main conference sessions and featured panels, networking and educational experiences, and the Saturday evening Fundraising Gala.',
     ],
-
     [
       'What is included with VIP Admission?',
-      'VIP Admission is $397 and includes everything in Regular Admission, plus the exclusive Friday VIP Experience from 12:00 PM–4:00 PM, the Health Is My Wealth Panel, intimate health and wealth conversations, an exclusive VIP guest speaker, an additional wealth-building session, VIP lunch, intimate networking, and deeper Q&A and interaction with featured experts.',
+      'VIP Admission is $397 and includes everything in Regular Admission, plus the exclusive Friday VIP Experience from 12:00 PM–4:00 PM. The VIP program features The Real Estate Career Pivot, The Wealth Accelerator, Health Is My Wealth, The Wealth & Wellness Inner Circle, and VIP Networking Lunch.',
     ],
-
+    [
+      'What is the VIP Experience?',
+      'The Dominion VIP Experience is an exclusive Friday afternoon program themed around access, strategy, and transformation. It focuses on real estate careers, financial growth, health and wellness, expert conversations, and networking. Individual session times will be announced.',
+    ],
     [
       'Is the Fundraising Gala included with conference admission?',
-      'Yes. All Regular and VIP Conference Tickets include access to the Reign in Wealth Fundraising Gala on Saturday evening.',
+      'Yes. All Regular and VIP admission tickets include access to the Reign in Wealth Fundraising Gala on Saturday evening.',
     ],
-
     [
       'Can I purchase a Gala-only ticket?',
-      'Yes. A Gala-only ticket is available for $197 for guests who would like to attend the Saturday evening Gala without attending the main conference.',
+      'Yes. Gala-only admission is $197 for guests who want to attend the Saturday evening Gala without attending the main conference.',
     ],
-
     [
       'What time is the Fundraising Gala?',
-      'The Reign in Wealth Fundraising Gala takes place Saturday, December 12 at 7:00 PM.',
+      'The Reign in Wealth Fundraising Gala takes place Saturday, December 12, 2026, at 7:00 PM.',
     ],
-
+    [
+      'What sessions are included in the Saturday conference?',
+      'Saturday features LIV FIT: Strong Body, Strong Vision; Prophetic Intercession: Anointed to Build; The Real Estate Investor’s Blueprint; From Land to Legacy; The Group Home Business Blueprint; Trading 101: Understanding the Markets; REITs: Real Estate Investing Without Buying a Property; The Dominion Wealth Panel; and Beyond the License: The Real Estate Success Panel. Session times will be announced.',
+    ],
     [
       'What is included with the Gala-only ticket?',
-      'The $197 Gala-only ticket includes Gala admission, the Gala experience and program, dinner, networking, celebration, the fundraising and impact presentation, and special presentations or recognition when applicable.',
+      'The $197 Gala-only ticket includes Saturday evening Gala admission and the Gala experience and program, with an evening centered on celebration, networking, philanthropy, fundraising, and impact.',
     ],
-
     [
       'What should I wear?',
-      'Dress-code guidance will be added when finalized.',
+      'Dress-code guidance will be announced when finalized.',
     ],
-
     [
       'Where should I stay?',
       'A conference room block is available at Courtyard by Marriott Yonkers Westchester County.',
     ],
-
     [
       'Is there a special hotel rate?',
-      'Yes. The current group rate is $169 USD per night, with booking requested by November 11, 2026.',
+      'The current group rate is $169 USD per night. Book by November 11, 2026, subject to availability.',
     ],
-
     [
       'Is parking available?',
-      'Final parking information will be added when confirmed.',
+      'Parking information will be announced when confirmed.',
     ],
-
     [
       'Are tickets refundable or transferable?',
-      'Final refund and transfer policy will be added once confirmed.',
+      'The ticket refund and transfer policy will be published once finalized.',
     ],
-
     [
       'Can I become a vendor?',
-      'Vendor opportunities can be handled through the contact form once the final process is confirmed.',
+      'Vendor opportunities and application details will be announced when finalized.',
     ],
-
     [
       'How can my company become a sponsor?',
-      'Use the Corporate Partner CTA or contact form to submit a sponsorship inquiry.',
+      'Use the sponsorship contact form to submit an inquiry about partnering with Reign in Wealth.',
     ],
-
     [
-      'Do I need to already own a business or real estate to attend?',
-      'No. The experience is designed for entrepreneurs, professionals, aspiring homeowners, real estate professionals, investors, business owners, and people ready to learn, build, execute, and grow.',
+      'Do I need to already own a business or property to attend?',
+      'No. DOMINION welcomes entrepreneurs, professionals, aspiring Realtors, investors, business owners, and people who want to learn about wealth-building, real estate, financial literacy, wellness, faith, and ownership.',
     ],
   ],
 }

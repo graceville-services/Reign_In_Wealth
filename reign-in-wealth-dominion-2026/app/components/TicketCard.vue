@@ -29,45 +29,38 @@ const emit = defineEmits<{
       VIP
     </div>
 
-    <!-- EYEBROW -->
-    <div
-      class="font-mono text-[9px] font-bold uppercase tracking-[.2em] text-gold"
-    >
+    <div class="font-mono text-[9px] font-bold uppercase tracking-[.2em] text-gold">
       {{ ticket.eyebrow }}
     </div>
 
-    <!-- TITLE -->
-    <h3
-      class="mt-5 max-w-[82%] font-serif text-3xl leading-tight text-cream md:text-4xl"
-    >
+    <h3 class="mt-5 max-w-[82%] font-serif text-3xl leading-tight text-cream md:text-4xl">
       {{ ticket.name }}
     </h3>
 
-    <!-- PRICE -->
+    <p
+      v-if="'headline' in ticket && ticket.headline"
+      class="mt-3 text-sm font-semibold leading-6 text-gold"
+    >
+      {{ ticket.headline }}
+    </p>
+
     <div class="mt-8 flex items-end gap-2">
       <span class="font-serif text-5xl leading-none text-cream">
         ${{ ticket.price }}
       </span>
-
-      <span
-        class="pb-1 text-[10px] font-bold uppercase tracking-[.14em] text-cream/55"
-      >
+      <span class="pb-1 text-[10px] font-bold uppercase tracking-[.14em] text-cream/55">
         USD
       </span>
     </div>
 
-    <!-- DESCRIPTION -->
     <p class="mt-5 min-h-[84px] max-w-md text-sm leading-7 text-cream/75">
       {{ ticket.description }}
     </p>
 
     <div class="my-7 h-px bg-white/15" />
 
-    <!-- INCLUDED -->
-    <div
-      class="font-mono text-[9px] font-bold uppercase tracking-[.18em] text-gold"
-    >
-      What's included
+    <div class="font-mono text-[9px] font-bold uppercase tracking-[.18em] text-gold">
+      What’s included
     </div>
 
     <ul class="mt-5 space-y-4">
@@ -76,17 +69,13 @@ const emit = defineEmits<{
         :key="feature"
         class="flex gap-3 text-sm leading-6 text-cream/85"
       >
-        <span
-          class="mt-[3px] grid h-4 w-4 shrink-0 place-items-center border border-gold/60 text-gold"
-        >
+        <span class="mt-[3px] grid h-4 w-4 shrink-0 place-items-center border border-gold/60 text-gold">
           <Check :size="10" stroke-width="2.5" />
         </span>
-
         <span>{{ feature }}</span>
       </li>
     </ul>
 
-    <!-- CTA -->
     <div class="mt-auto pt-10">
       <button
         type="button"
