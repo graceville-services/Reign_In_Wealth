@@ -1,6 +1,9 @@
+
 <script setup lang="ts">
 import { ArrowUpRight, Heart, Handshake } from 'lucide-vue-next'
 import { site } from '~/data/site'
+
+const sponsorshipEmail = 'Info@reigninwealth.com'
 </script>
 
 <template>
@@ -24,11 +27,15 @@ import { site } from '~/data/site'
           SUPPORT THE WORK
         </div>
 
-        <h2 class="display mt-5 max-w-3xl text-6xl leading-[.92] text-forest md:text-8xl">
+        <h2
+          class="display mt-5 max-w-3xl text-6xl leading-[.92] text-forest md:text-8xl"
+        >
           Help make the room possible.
         </h2>
 
-        <p class="mt-7 max-w-2xl text-sm leading-8 text-forest/75 md:text-base">
+        <p
+          class="mt-7 max-w-2xl text-sm leading-8 text-forest/75 md:text-base"
+        >
           DOMINION is built around people, ideas, and opportunities that can
           continue long after the weekend is over. There are a few ways to
           support the work behind it.
@@ -54,25 +61,49 @@ import { site } from '~/data/site'
 
             <div class="mt-12">
               <div class="eyebrow !text-gold">
-                {{ site.support.sponsorship.eyebrow }}
+                PARTNER WITH DOMINION 2026
               </div>
 
               <h3 class="display mt-4 text-4xl md:text-5xl">
-                {{ site.support.sponsorship.title }}
+                Become a Sponsor
               </h3>
 
-              <p
-                class="mt-5 max-w-xl text-sm leading-7 text-cream/50"
-              >
-                {{ site.support.sponsorship.body }}
+              <p class="mt-5 max-w-xl text-sm leading-7 text-cream/70">
+                Align your brand with a powerful gathering of entrepreneurs,
+                real estate professionals, investors, business leaders, and
+                emerging wealth builders.
+              </p>
+
+              <p class="mt-4 max-w-xl text-sm leading-7 text-cream/70">
+                We invite corporations, financial institutions, real estate
+                companies, and community partners to support financial
+                education, entrepreneurship, ownership, and lasting
+                community impact.
+              </p>
+
+              <p class="mt-6 text-sm font-semibold leading-7 text-cream">
+                Interested in becoming a sponsor?
+              </p>
+
+              <p class="mt-2 text-sm leading-7 text-cream/70">
+                Email:
+                <a
+                  :href="`mailto:${sponsorshipEmail}`"
+                  class="font-semibold text-gold underline decoration-gold/40 underline-offset-4 transition hover:decoration-gold"
+                >
+                  {{ sponsorshipEmail }}
+                </a>
+                <span class="mt-1 block">
+                  to explore sponsorship and partnership opportunities.
+                </span>
               </p>
             </div>
 
             <a
-              :href="`mailto:${site.support.sponsorship.email}`"
+              :href="`mailto:${sponsorshipEmail}?subject=${encodeURIComponent('DOMINION 2026 Sponsorship and Partnership Inquiry')}`"
               class="button-gold mt-8"
             >
-              {{ site.support.sponsorship.cta }}
+              BECOME A SPONSOR
               <ArrowUpRight :size="16" />
             </a>
           </div>
@@ -102,9 +133,7 @@ import { site } from '~/data/site'
                 {{ site.support.donations.title }}
               </h3>
 
-              <p
-                class="mt-5 max-w-xl text-sm leading-7 text-forest/55"
-              >
+              <p class="mt-5 max-w-xl text-sm leading-7 text-forest/55">
                 {{ site.support.donations.body }}
               </p>
             </div>

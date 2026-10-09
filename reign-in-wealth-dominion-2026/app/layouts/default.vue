@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Menu, X, ArrowUpRight } from 'lucide-vue-next'
+import { Menu, X, ArrowUpRight, Hotel } from 'lucide-vue-next'
 import { site } from '~/data/site'
 
 const open = ref(false)
@@ -76,6 +76,18 @@ const active = (href: string) => {
           >
             {{ label }}
           </NuxtLink>
+
+          <!-- HOTEL BOOKING -->
+          <a
+            :href="site.hotel.bookingUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="nav-link-dark inline-flex items-center gap-1.5 whitespace-nowrap transition hover:!text-gold"
+          >
+            Book a Hotel
+            <Hotel :size="15" />
+            <ArrowUpRight :size="14" />
+          </a>
         </nav>
 
         <!-- ACTIONS -->
@@ -115,6 +127,22 @@ const active = (href: string) => {
           >
             {{ label }}
           </NuxtLink>
+
+          <!-- MOBILE HOTEL BOOKING -->
+          <a
+            :href="site.hotel.bookingUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center justify-between border-b border-white/10 py-4 text-sm font-semibold text-cream/80 transition hover:text-gold"
+            @click="open = false"
+          >
+            <span class="inline-flex items-center gap-2">
+              <Hotel :size="17" />
+              Book a Hotel
+            </span>
+
+            <ArrowUpRight :size="16" />
+          </a>
 
           <NuxtLink
             to="/tickets"
@@ -169,6 +197,17 @@ const active = (href: string) => {
             >
               {{ label }}
             </NuxtLink>
+
+            <!-- FOOTER HOTEL BOOKING -->
+            <a
+              :href="site.hotel.bookingUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 transition hover:text-gold"
+            >
+              Book a Hotel
+              <ArrowUpRight :size="14" />
+            </a>
           </div>
         </div>
 

@@ -25,7 +25,7 @@ export const site = {
     name: 'Kimona Hanson',
     role: 'Founder & Visionary, Reign in Wealth',
     image: '/images/kh.jpg',
-    bio: 'Kimona Hanson is a Realtor, real estate investor, entrepreneur, wealth strategist, mentor, speaker, and advocate for financial empowerment and ownership. After transitioning from a successful corporate career into real estate, she built Reign in Wealth around helping individuals understand ownership, wealth creation, real estate, entrepreneurship, faith, and generational legacy.',
+    bio: "Kimona Hanson is an award winning Realtor, real estate investor, entrepreneur, wealth strategist, and speaker with over $50 million in real estate sales. After leaving a successful career in healthcare leadership, she built a thriving real estate business and founded REIGN IN WEALTH INC., a nonprofit organization dedicated to financial literacy, entrepreneurship, ownership, and generational wealth. Known as The Millionaire Chick, Kimona inspires a community of 250,000+ followers across social media, combining biblical principles with practical wealth-building strategies. Through her nonprofit, mentorship programs, and conferences, she empowers individuals to transform their mindset, build assets, create opportunities, and establish lasting legacies. Her message is simple: Faith gives you the vision. Knowledge gives you the strategy. Action brings the transformation.",
     quote: 'Pray. Prepare. Build. Own. Multiply.',
   },
 
@@ -65,8 +65,8 @@ export const site = {
       eyebrow: 'ACCESS. STRATEGY. TRANSFORMATION.',
       headline: 'Don’t Just Attend DOMINION. Experience It at Another Level.',
       description:
-        'Enjoy everything in Regular Admission, plus five exclusive VIP experiences on Friday from 12:00 PM–4:00 PM, designed for deeper access, strategy, and connection.',
-      features: [
+          'Everything in Regular Admission, plus an exclusive Friday afternoon experience featuring real estate career insights, wealth-building strategies, health and wellness conversations, and a private networking lunch with fellow professionals and experts.',
+  features: [
         'Everything included with Regular Admission',
         'Exclusive Friday VIP Experience · 12:00 PM–4:00 PM',
         'The Real Estate Career Pivot',
@@ -347,7 +347,6 @@ export const site = {
     '/images/events/exp1.jpg',
     '/images/events/ex2.jpg',
     '/images/events/exp3.jpg',
-    '/images/events/exp4.jpg',
     '/images/events/exp5.jpg',
     '/images/events/exp6.jpg',
     '/images/events/exp7.jpg',
