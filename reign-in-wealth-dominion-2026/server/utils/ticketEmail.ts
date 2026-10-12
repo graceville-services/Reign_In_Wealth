@@ -1,624 +1,603 @@
 import { Resend } from 'resend'
+import { site } from '~/data/site'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resendApiKey = process.env.RESEND_API_KEY
+const emailFrom = process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM
+const siteUrl = (
+  process.env.NUXT_PUBLIC_SITE_URL || `https://${site.domain}`
+).replace(/\/+$/, '')
 
-type TicketEmailData = {
+if (!resendApiKey) {
+  throw new Error('RESEND_API_KEY is not configured.')
+}
+
+if (!emailFrom) {
+  throw new Error(
+    'RESEND_FROM_EMAIL or EMAIL_FROM is not configured.',
+  )
+}
+
+const resend = new Resend(resendApiKey)
+
+export interface TicketEmailData {
   sessionId: string
   attendeeName: string
   attendeeEmail: string
   ticketName: string
+  ticketId?: string
   quantity: number
+  registrationNumber?: string
 }
 
-const escapeHtml = (value: string) => {
+interface TicketDetails {
+  id: string
+  name: string
+  price: number
+  description: string
+  features: string[]
+}
+
+function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
+    .replace(/'/g, '&#39;')
 }
 
-const getFirstName = (name: string) => {
-  return name.trim().split(/\s+/)[0] || 'there'
-}
+function getTicketDetails(
+  ticketId?: string,
+  ticketName?: string,
+): TicketDetails {
+  const normalizedId = ticketId?.toLowerCase().trim()
+  const normalizedName = ticketName?.toLowerCase().trim()
 
-const getTicketDetails = (ticketName: string) => {
-  const name = ticketName.toLowerCase()
-
-  if (name.includes('vip')) {
-    return {
-      access: 'VIP Experience + Opening Night + Saturday Conference',
-      schedule: 'Friday, December 11 · VIP Experience 12–4 PM',
+  const ticket = site.tickets.find((item) => {
+    if (normalizedId && item.id === normalizedId) {
+      return true
     }
-  }
 
-  if (name.includes('gala')) {
-    return {
-      access: 'Reign in Wealth Fundraising Gala',
-      schedule: 'Saturday, December 12 · 6–8 PM',
-    }
+    return (
+      !!normalizedName &&
+      item.name.toLowerCase() === normalizedName
+    )
+  })
+
+  if (!ticket) {
+    throw new Error(
+      `Unable to identify the purchased ticket. ID: ${
+        ticketId || 'not provided'
+      }, name: ${ticketName || 'not provided'}`,
+    )
   }
 
   return {
-    access: 'Friday Opening Night + Saturday Conference',
-    schedule: 'December 11–12, 2026',
+    id: ticket.id,
+    name: ticket.name,
+    price: ticket.price,
+    description: ticket.description,
+    features: ticket.features,
   }
+}
+
+function getAdmissionNote(ticketId: string): string {
+  switch (ticketId) {
+    case 'vip':
+      return (
+        'Your VIP ticket includes Regular Admission benefits, ' +
+        'the Saturday conference and Fundraising Gala, plus the ' +
+        'exclusive Friday VIP Experience from 12:00 PM to 4:00 PM.'
+      )
+
+    case 'regular':
+      return (
+        'Your Regular Admission ticket includes Friday Opening Night, ' +
+        'Saturday wellness and main conference experiences, and the ' +
+        'Saturday evening Fundraising Gala. The Friday afternoon ' +
+        'VIP Experience is not included.'
+      )
+
+    case 'gala':
+      return (
+        'Your ticket grants admission to the Saturday evening ' +
+        'Fundraising Gala only. It does not include the main conference ' +
+        'or Friday VIP Experience.'
+      )
+
+    default:
+      return ''
+  }
+}
+
+function renderFeatures(features: string[]): string {
+  return features
+    .map(
+      (feature) => `
+        <tr>
+          <td style="padding:0 0 12px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td
+                  width="24"
+                  valign="top"
+                  style="color:#c5a46d;font-size:16px;font-weight:bold;"
+                >
+                  &#10003;
+                </td>
+                <td
+                  style="color:#e8e1d5;font-size:14px;line-height:1.7;"
+                >
+                  ${escapeHtml(feature)}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      `,
+    )
+    .join('')
 }
 
 export async function sendTicketWelcomeEmail(
   data: TicketEmailData,
 ) {
-  const venueName =
-    process.env.DOMINION_VENUE_NAME ||
-    'Courtyard by Marriott Yonkers Westchester County'
+  const ticket = getTicketDetails(data.ticketId, data.ticketName)
 
-  const venueAddress =
-    process.env.DOMINION_VENUE_ADDRESS ||
-    'Venue address will be provided here.'
+  const attendeeName = escapeHtml(
+    data.attendeeName.trim() || 'Guest',
+  )
 
-  const firstName = getFirstName(data.attendeeName)
-  const details = getTicketDetails(data.ticketName)
+  const attendeeEmail = data.attendeeEmail.trim()
+  const quantity = Math.max(1, Math.floor(data.quantity || 1))
 
-  const safeFirstName = escapeHtml(firstName)
-  const safeTicketName = escapeHtml(data.ticketName)
-  const safeVenueName = escapeHtml(venueName)
-  const safeVenueAddress = escapeHtml(venueAddress)
+  if (!attendeeEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(attendeeEmail)) {
+    throw new Error('A valid attendee email address is required.')
+  }
 
-  const subject = `Your DOMINION 2026 Ticket Is Confirmed, ${firstName}`
+  const registrationNumber =
+    data.registrationNumber?.trim() || data.sessionId
+
+  const safeRegistrationNumber = escapeHtml(registrationNumber)
+  const safeTicketName = escapeHtml(ticket.name)
+  const safeEventName = escapeHtml(site.name)
+  const safeTheme = escapeHtml(site.theme)
+  const safeDates = escapeHtml(site.dates)
+  const safeLocation = escapeHtml(site.location)
+  const safeTagline = escapeHtml(site.tagline)
+  const safeHotelName = escapeHtml(site.hotel.name)
+  const safeHotelRate = escapeHtml(site.hotel.rate)
+  const safeHotelDeadline = escapeHtml(site.hotel.bookingDeadline)
+  const safeHotelPhone = escapeHtml(site.hotel.phone)
+  const safeGroupName = escapeHtml(site.hotel.groupName)
+
+  const logoUrl =
+    process.env.DOMINION_LOGO_URL ||
+    `${siteUrl}/logo.png`
+
+  const hotelUrl = site.hotel.bookingUrl
+  const admissionNote = escapeHtml(getAdmissionNote(ticket.id))
+
+  const total = ticket.price * quantity
+  const formattedTotal = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(total)
+
+  const subject =
+    `You're Registered for ${site.theme} 2026 — ${ticket.name}`
 
   const html = `
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <meta name="x-apple-disable-message-reformatting">
-  <meta name="color-scheme" content="dark">
-  <title>${subject}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>${safeEventName} Registration Confirmation</title>
 </head>
 
-<body
-  style="
-    margin:0;
-    padding:0;
-    background:#050605;
-    color:#f4efe5;
-    font-family:Arial,Helvetica,sans-serif;
-  "
->
-  <div
-    style="
-      width:100%;
-      background:#050605;
-      padding:32px 16px;
-      box-sizing:border-box;
-    "
-  >
+<body style="margin:0;padding:0;background:#11110f;font-family:Arial,Helvetica,sans-serif;color:#f4efe5;">
 
-    <div
-      style="
-        max-width:680px;
-        margin:0 auto;
-      "
-    >
-
-      <!-- HEADER -->
-      <div
-        style="
-          padding:24px 0 22px;
-          border-bottom:1px solid rgba(197,164,109,.25);
-        "
-      >
-        <div
-          style="
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:3px;
-            text-transform:uppercase;
-          "
-        >
-          REIGN IN WEALTH CONFERENCE 2026
-        </div>
-
-        <div
-          style="
-            margin-top:10px;
-            color:#f4efe5;
-            font-family:Georgia,'Times New Roman',serif;
-            font-size:38px;
-            line-height:1;
-            letter-spacing:-1px;
-          "
-        >
-          DOMINION
-        </div>
-
-        <div
-          style="
-            margin-top:10px;
-            color:rgba(244,239,229,.45);
-            font-size:11px;
-            letter-spacing:1.5px;
-          "
-        >
-          OCCUPY. BUILD. MULTIPLY. REIGN.
-        </div>
-      </div>
-
-
-      <!-- CONFIRMATION -->
-      <div style="padding:50px 0 30px;">
-
-        <div
-          style="
-            display:inline-block;
-            padding:8px 12px;
-            border:1px solid rgba(197,164,109,.35);
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:2px;
-            text-transform:uppercase;
-          "
-        >
-          REGISTRATION CONFIRMED
-        </div>
-
-        <h1
-          style="
-            margin:20px 0 0;
-            color:#f4efe5;
-            font-family:Georgia,'Times New Roman',serif;
-            font-size:42px;
-            line-height:1.08;
-            font-weight:400;
-            letter-spacing:-.8px;
-          "
-        >
-          You're officially joining us, ${safeFirstName}.
-        </h1>
-
-        <p
-          style="
-            margin:24px 0 0;
-            color:rgba(244,239,229,.78);
-            font-size:16px;
-            line-height:1.8;
-          "
-        >
-          Thank you for registering for DOMINION 2026.
-          Your ticket purchase has been successfully confirmed,
-          and your place at the conference is secured.
-        </p>
-
-        <p
-          style="
-            margin:16px 0 0;
-            color:rgba(244,239,229,.78);
-            font-size:16px;
-            line-height:1.8;
-          "
-        >
-          This is more than a conference. It is a gathering of
-          people committed to learning, building, connecting,
-          creating opportunities and taking greater ownership
-          of what comes next.
-        </p>
-
-      </div>
-
-
-      <!-- TICKET CARD -->
-      <div
-        style="
-          margin-top:10px;
-          padding:30px;
-          border:1px solid rgba(197,164,109,.3);
-          background:#0b100c;
-        "
-      >
-
-        <div
-          style="
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:2px;
-            text-transform:uppercase;
-          "
-        >
-          YOUR TICKET
-        </div>
-
-        <div
-          style="
-            margin-top:14px;
-            color:#f4efe5;
-            font-family:Georgia,'Times New Roman',serif;
-            font-size:29px;
-            line-height:1.25;
-          "
-        >
-          ${safeTicketName}
-        </div>
-
-
-        <div
-          style="
-            margin-top:26px;
-            padding-top:22px;
-            border-top:1px solid rgba(255,255,255,.1);
-          "
-        >
-
-          <div
-            style="
-              color:rgba(244,239,229,.42);
-              font-size:10px;
-              font-weight:700;
-              letter-spacing:1.5px;
-              text-transform:uppercase;
-            "
-          >
-            ACCESS
-          </div>
-
-          <div
-            style="
-              margin-top:8px;
-              color:#f4efe5;
-              font-size:14px;
-              line-height:1.7;
-            "
-          >
-            ${escapeHtml(details.access)}
-          </div>
-
-        </div>
-
-
-        <div style="margin-top:22px;">
-
-          <div
-            style="
-              color:rgba(244,239,229,.42);
-              font-size:10px;
-              font-weight:700;
-              letter-spacing:1.5px;
-              text-transform:uppercase;
-            "
-          >
-            DATE & SCHEDULE
-          </div>
-
-          <div
-            style="
-              margin-top:8px;
-              color:#f4efe5;
-              font-size:14px;
-              line-height:1.7;
-            "
-          >
-            ${escapeHtml(details.schedule)}
-          </div>
-
-        </div>
-
-
-        <div style="margin-top:22px;">
-
-          <div
-            style="
-              color:rgba(244,239,229,.42);
-              font-size:10px;
-              font-weight:700;
-              letter-spacing:1.5px;
-              text-transform:uppercase;
-            "
-          >
-            QUANTITY
-          </div>
-
-          <div
-            style="
-              margin-top:8px;
-              color:#f4efe5;
-              font-size:14px;
-            "
-          >
-            ${data.quantity} ${data.quantity === 1 ? 'ticket' : 'tickets'}
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- VENUE -->
-      <div
-        style="
-          margin-top:18px;
-          padding:30px;
-          border:1px solid rgba(255,255,255,.1);
-          background:#090d0a;
-        "
-      >
-
-        <div
-          style="
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:2px;
-            text-transform:uppercase;
-          "
-        >
-          EVENT VENUE
-        </div>
-
-        <div
-          style="
-            margin-top:14px;
-            color:#f4efe5;
-            font-family:Georgia,'Times New Roman',serif;
-            font-size:24px;
-            line-height:1.3;
-          "
-        >
-          ${safeVenueName}
-        </div>
-
-        <div
-          style="
-            margin-top:10px;
-            color:rgba(244,239,229,.68);
-            font-size:14px;
-            line-height:1.7;
-          "
-        >
-          ${safeVenueAddress}
-        </div>
-
-      </div>
-
-
-      <!-- WHAT TO EXPECT -->
-      <div style="padding:42px 0 34px;">
-
-        <div
-          style="
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:2px;
-            text-transform:uppercase;
-          "
-        >
-          WHAT TO EXPECT
-        </div>
-
-        <h2
-          style="
-            margin:14px 0 0;
-            color:#f4efe5;
-            font-family:Georgia,'Times New Roman',serif;
-            font-size:28px;
-            font-weight:400;
-          "
-        >
-          Come prepared to make the most of it.
-        </h2>
-
-        <p
-          style="
-            margin:16px 0 0;
-            color:rgba(244,239,229,.68);
-            font-size:14px;
-            line-height:1.8;
-          "
-        >
-          Expect meaningful conversations, practical insights,
-          valuable connections and an environment designed to
-          challenge you to think bigger about wealth, leadership,
-          business and your future.
-        </p>
-
-        <p
-          style="
-            margin:14px 0 0;
-            color:rgba(244,239,229,.68);
-            font-size:14px;
-            line-height:1.8;
-          "
-        >
-          We recommend arriving prepared, keeping this confirmation
-          accessible and allowing yourself enough time to check in
-          before your scheduled sessions.
-        </p>
-
-      </div>
-
-
-      <!-- IMPORTANT INFORMATION -->
-      <div
-        style="
-          padding:28px 0;
-          border-top:1px solid rgba(255,255,255,.1);
-          border-bottom:1px solid rgba(255,255,255,.1);
-        "
-      >
-
-        <div
-          style="
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:2px;
-            text-transform:uppercase;
-          "
-        >
-          IMPORTANT INFORMATION
-        </div>
-
-        <div style="margin-top:18px;">
-
-          <p
-            style="
-              margin:0;
-              color:rgba(244,239,229,.68);
-              font-size:13px;
-              line-height:1.8;
-            "
-          >
-            <strong style="color:#f4efe5;">
-              Keep this email:
-            </strong>
-            Please save this confirmation for your records.
-            You may need it when checking in at the event.
-          </p>
-
-          <p
-            style="
-              margin:14px 0 0;
-              color:rgba(244,239,229,.68);
-              font-size:13px;
-              line-height:1.8;
-            "
-          >
-            <strong style="color:#f4efe5;">
-              Payment receipt:
-            </strong>
-            Your Stripe payment receipt is provided separately.
-            Please keep that receipt together with this confirmation.
-          </p>
-
-          <p
-            style="
-              margin:14px 0 0;
-              color:rgba(244,239,229,.68);
-              font-size:13px;
-              line-height:1.8;
-            "
-          >
-            <strong style="color:#f4efe5;">
-              Ticket policy:
-            </strong>
-            Ticket purchases are non-refundable.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <!-- CLOSING -->
-      <div
-        style="
-          padding:46px 0 40px;
-          text-align:center;
-        "
-      >
-
-        <div
-          style="
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:2px;
-            text-transform:uppercase;
-          "
-        >
-          DECEMBER 2026
-        </div>
-
-        <div
-          style="
-            margin-top:16px;
-            color:#f4efe5;
-            font-family:Georgia,'Times New Roman',serif;
-            font-size:29px;
-            line-height:1.35;
-          "
-        >
-          Pray. Prepare. Build. Own. Multiply.
-        </div>
-
-        <p
-          style="
-            margin:18px 0 0;
-            color:rgba(244,239,229,.58);
-            font-size:14px;
-            line-height:1.8;
-          "
-        >
-          We look forward to welcoming you to DOMINION 2026.
-        </p>
-
-      </div>
-
-
-      <!-- FOOTER -->
-      <div
-        style="
-          padding:26px 0 10px;
-          border-top:1px solid rgba(255,255,255,.1);
-          text-align:center;
-        "
-      >
-
-        <div
-          style="
-            color:#c5a46d;
-            font-size:10px;
-            font-weight:700;
-            letter-spacing:2px;
-          "
-        >
-          REIGN IN WEALTH CONFERENCE
-        </div>
-
-        <div
-          style="
-            margin-top:9px;
-            color:rgba(244,239,229,.35);
-            font-size:11px;
-            line-height:1.6;
-          "
-        >
-          DOMINION 2026 · Occupy. Build. Multiply. Reign.
-        </div>
-
-      </div>
-
-    </div>
-
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+    Your ${safeTicketName} registration is confirmed for ${safeDates}. We look forward to welcoming you to ${safeTheme}.
   </div>
+
+  <table
+    role="presentation"
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="background:#11110f;width:100%;"
+  >
+    <tr>
+      <td align="center" style="padding:32px 12px;">
+
+        <table
+          role="presentation"
+          width="600"
+          cellpadding="0"
+          cellspacing="0"
+          border="0"
+          style="width:100%;max-width:600px;background:#191916;border:1px solid #39342a;"
+        >
+
+          <!-- Brand header -->
+          <tr>
+            <td align="center" style="padding:36px 24px 30px;background:#141411;border-bottom:1px solid #51452e;">
+
+              <a
+                href="${siteUrl}"
+                style="text-decoration:none;"
+              >
+                <img
+                  src="${escapeHtml(logoUrl)}"
+                  alt="${safeEventName}"
+                  width="100"
+                  style="display:block;width:100px;max-width:100%;height:auto;margin:0 auto 22px;border:0;"
+                />
+              </a>
+
+              <p style="margin:0 0 10px;color:#c5a46d;font-size:11px;letter-spacing:4px;text-transform:uppercase;">
+                ${safeEventName}
+              </p>
+
+              <h1 style="margin:0;color:#f4efe5;font-family:Georgia,'Times New Roman',serif;font-size:42px;line-height:1.1;letter-spacing:3px;font-weight:normal;">
+                ${safeTheme}
+              </h1>
+
+              <p style="margin:14px 0 0;color:#bcb4a5;font-size:13px;letter-spacing:1px;">
+                ${safeTagline}
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Confirmation -->
+          <tr>
+            <td style="padding:34px 28px 16px;">
+
+              <p style="margin:0 0 12px;color:#c5a46d;font-size:11px;letter-spacing:2px;text-transform:uppercase;">
+                Registration Confirmed
+              </p>
+
+              <h2 style="margin:0 0 16px;color:#f4efe5;font-family:Georgia,'Times New Roman',serif;font-size:29px;line-height:1.3;font-weight:normal;">
+                You're on the list, ${attendeeName}.
+              </h2>
+
+              <p style="margin:0;color:#d1c9bb;font-size:15px;line-height:1.9;">
+                Thank you for registering for ${safeEventName} 2026.
+                Your ticket purchase has been confirmed, and we look
+                forward to welcoming you to ${safeTheme}.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Ticket details -->
+          <tr>
+            <td style="padding:20px 28px 12px;">
+
+              <table
+                role="presentation"
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                style="background:#22211c;border:1px solid #504632;"
+              >
+                <tr>
+                  <td style="padding:24px;">
+
+                    <p style="margin:0 0 8px;color:#c5a46d;font-size:10px;letter-spacing:2px;text-transform:uppercase;">
+                      Your Ticket
+                    </p>
+
+                    <h3 style="margin:0 0 20px;color:#f4efe5;font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:normal;">
+                      ${safeTicketName}
+                    </h3>
+
+                    <table
+                      role="presentation"
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      border="0"
+                    >
+                      <tr>
+                        <td style="padding:12px 0;border-top:1px solid #454033;color:#aaa294;font-size:13px;">
+                          Registration Number
+                        </td>
+                        <td align="right" style="padding:12px 0;border-top:1px solid #454033;color:#f4efe5;font-size:13px;font-weight:bold;word-break:break-word;">
+                          ${safeRegistrationNumber}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td style="padding:12px 0;border-top:1px solid #454033;color:#aaa294;font-size:13px;">
+                          Quantity
+                        </td>
+                        <td align="right" style="padding:12px 0;border-top:1px solid #454033;color:#f4efe5;font-size:13px;">
+                          ${quantity}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td style="padding:12px 0;border-top:1px solid #454033;color:#aaa294;font-size:13px;">
+                          Total Paid
+                        </td>
+                        <td align="right" style="padding:12px 0;border-top:1px solid #454033;color:#c5a46d;font-size:16px;font-weight:bold;">
+                          ${escapeHtml(formattedTotal)}
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:20px 0 0;color:#d1c9bb;font-size:13px;line-height:1.8;">
+                      ${admissionNote}
+                    </p>
+
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Event information -->
+          <tr>
+            <td style="padding:26px 28px 10px;">
+
+              <h3 style="margin:0 0 18px;color:#f4efe5;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:normal;">
+                Event Information
+              </h3>
+
+              <table
+                role="presentation"
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+              >
+                <tr>
+                  <td width="32" valign="top" style="padding:0 0 16px;color:#c5a46d;font-size:17px;">
+                    &#9670;
+                  </td>
+                  <td style="padding:0 0 16px;">
+                    <p style="margin:0 0 4px;color:#aaa294;font-size:11px;letter-spacing:1px;text-transform:uppercase;">
+                      Dates
+                    </p>
+                    <p style="margin:0;color:#f4efe5;font-size:14px;line-height:1.7;">
+                      ${safeDates}
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td width="32" valign="top" style="padding:0 0 16px;color:#c5a46d;font-size:17px;">
+                    &#9670;
+                  </td>
+                  <td style="padding:0 0 16px;">
+                    <p style="margin:0 0 4px;color:#aaa294;font-size:11px;letter-spacing:1px;text-transform:uppercase;">
+                      Location
+                    </p>
+                    <p style="margin:0;color:#f4efe5;font-size:14px;line-height:1.7;">
+                      ${safeLocation}
+                    </p>
+                    <p style="margin:5px 0 0;color:#aaa294;font-size:12px;line-height:1.7;">
+                      Final venue details will be shared when confirmed.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Ticket inclusions -->
+          <tr>
+            <td style="padding:20px 28px 12px;">
+
+              <h3 style="margin:0 0 18px;color:#f4efe5;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:normal;">
+                What's Included
+              </h3>
+
+              <table
+                role="presentation"
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+              >
+                ${renderFeatures(ticket.features)}
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Hotel -->
+          <tr>
+            <td style="padding:20px 28px 28px;">
+
+              <table
+                role="presentation"
+                width="100%"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                style="background:#201e19;border:1px solid #504632;"
+              >
+                <tr>
+                  <td style="padding:24px;">
+
+                    <p style="margin:0 0 10px;color:#c5a46d;font-size:10px;letter-spacing:2px;text-transform:uppercase;">
+                      Accommodation
+                    </p>
+
+                    <h3 style="margin:0 0 12px;color:#f4efe5;font-family:Georgia,'Times New Roman',serif;font-size:21px;line-height:1.4;font-weight:normal;">
+                      Stay Near DOMINION
+                    </h3>
+
+                    <p style="margin:0 0 10px;color:#e8e1d5;font-size:14px;line-height:1.8;">
+                      ${safeHotelName}
+                    </p>
+
+                    <p style="margin:0 0 6px;color:#d1c9bb;font-size:13px;line-height:1.8;">
+                      Group rate: <strong style="color:#c5a46d;">${safeHotelRate}</strong>
+                    </p>
+
+                    <p style="margin:0 0 6px;color:#d1c9bb;font-size:13px;line-height:1.8;">
+                      Booking deadline: ${safeHotelDeadline}
+                    </p>
+
+                    <p style="margin:0 0 20px;color:#d1c9bb;font-size:13px;line-height:1.8;">
+                      Group name: ${safeGroupName}<br />
+                      Hotel reservations: ${safeHotelPhone}
+                    </p>
+
+                    <table
+                      role="presentation"
+                      cellpadding="0"
+                      cellspacing="0"
+                      border="0"
+                    >
+                      <tr>
+                        <td
+                          align="center"
+                          bgcolor="#c5a46d"
+                          style="background:#c5a46d;"
+                        >
+                          <a
+                            href="${escapeHtml(hotelUrl)}"
+                            target="_blank"
+                            style="display:inline-block;padding:14px 22px;color:#171510;font-size:12px;font-weight:bold;letter-spacing:1px;text-decoration:none;text-transform:uppercase;"
+                          >
+                            Book Your Hotel
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:16px 0 0;color:#9e9688;font-size:11px;line-height:1.7;">
+                      Hotel rates and availability are subject to the hotel's
+                      terms. Booking accommodations is separate from your
+                      conference ticket.
+                    </p>
+
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Closing -->
+          <tr>
+            <td align="center" style="padding:26px 28px 34px;border-top:1px solid #39342a;">
+
+              <p style="margin:0 0 12px;color:#c5a46d;font-family:Georgia,'Times New Roman',serif;font-size:23px;">
+                Pray. Prepare. Build. Own. Multiply.
+              </p>
+
+              <p style="margin:0 0 20px;color:#bcb4a5;font-size:13px;line-height:1.8;">
+                We look forward to seeing you at DOMINION 2026.
+              </p>
+
+              <a
+                href="${siteUrl}"
+                style="color:#c5a46d;font-size:12px;text-decoration:underline;"
+              >
+                Visit the Conference Website
+              </a>
+
+              <p style="margin:24px 0 0;color:#797367;font-size:11px;line-height:1.8;">
+                ${safeEventName}<br />
+                ${safeDates} · ${safeLocation}
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
 </body>
 </html>
 `
 
-  const result = await resend.emails.send(
+  const text = `
+${site.name}
+${site.theme} — Registration Confirmed
+
+Hello ${data.attendeeName || 'Guest'},
+
+Thank you for registering for ${site.name} 2026. Your ticket purchase has been confirmed.
+
+TICKET DETAILS
+Ticket: ${ticket.name}
+Registration Number: ${registrationNumber}
+Quantity: ${quantity}
+Total Paid: ${formattedTotal}
+
+ADMISSION INFORMATION
+${getAdmissionNote(ticket.id)}
+
+WHAT'S INCLUDED
+${ticket.features.map((feature) => `- ${feature}`).join('\n')}
+
+EVENT INFORMATION
+Dates: ${site.dates}
+Location: ${site.location}
+Final venue details will be shared when confirmed.
+
+HOTEL ACCOMMODATION
+Hotel: ${site.hotel.name}
+Rate: ${site.hotel.rate}
+Booking deadline: ${site.hotel.bookingDeadline}
+Phone: ${site.hotel.phone}
+Group name: ${site.hotel.groupName}
+Book here: ${site.hotel.bookingUrl}
+
+Hotel reservations are separate from your conference ticket. Rates and availability are subject to the hotel's terms.
+
+We look forward to seeing you at DOMINION 2026.
+
+Pray. Prepare. Build. Own. Multiply.
+
+${site.domain}
+`.trim()
+
+  const { data: result, error } = await resend.emails.send(
     {
-      from:
-        process.env.RESEND_FROM_EMAIL ||
-        'DOMINION <hello@reigninwealthconference.com>',
-
-      to: [data.attendeeEmail],
-
+      from: emailFrom,
+      to: [attendeeEmail],
       subject,
-
       html,
+      text,
+      tags: [
+        { name: 'category', value: 'ticket-confirmation' },
+        { name: 'ticket', value: ticket.id },
+      ],
     },
     {
       idempotencyKey: `dominion-welcome/${data.sessionId}`,
     },
   )
 
-  if (result.error) {
-    throw new Error(result.error.message)
+  if (error) {
+    console.error('Failed to send ticket confirmation email:', error)
+    throw new Error(
+      `Failed to send ticket confirmation email: ${error.message}`,
+    )
   }
 
-  return result.data
+  return {
+    success: true,
+    emailId: result?.id,
+    registrationNumber,
+    ticketId: ticket.id,
+  }
 }

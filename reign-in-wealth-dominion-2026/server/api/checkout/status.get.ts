@@ -1,55 +1,26 @@
-import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+import { processPaidSession } from '../../utils/dominion-registration'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
+  const sessionId = String(query.session_id || '')
 
-  const sessionId = String(
-    query.session_id || '',
-  )
-
-  if (!sessionId) {
+  if (!sessionId || !sessionId.startsWith('cs_')) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing checkout session.',
+      statusMessage: 'A valid checkout session is required.',
     })
   }
-
-  let session: Stripe.Checkout.Session
 
   try {
-    session =
-      await stripe.checkout.sessions.retrieve(
-        sessionId,
-      )
-  } catch {
+    return await processPaidSession(sessionId)
+  } catch (error) {
+    console.error('Checkout status processing failed:', error)
+
     throw createError({
-      statusCode: 404,
-      statusMessage: 'Checkout session not found.',
+      statusCode: 502,
+      statusMessage:
+        'We could not verify your payment yet. Please try again shortly.',
     })
-  }
-
-  return {
-    paid: session.payment_status === 'paid',
-
-    status: session.status,
-
-    ticketName:
-      session.metadata?.ticketName || null,
-
-    quantity:
-      Number(session.metadata?.quantity || 1),
-
-    attendeeName:
-      session.metadata?.attendeeName ||
-      session.customer_details?.name ||
-      null,
-
-    attendeeEmail:
-      session.metadata?.attendeeEmail ||
-      session.customer_details?.email ||
-      session.customer_email ||
-      null,
   }
 })

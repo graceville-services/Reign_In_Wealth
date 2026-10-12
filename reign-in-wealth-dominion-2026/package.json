@@ -9,15 +9,18 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "lucide-vue-next": "^0.468.0",
-    "nuxt": "^4.5.2",
-    "resend": "^6.32.0",
+    "nuxt": "^4.6.1",
+    "pg": "^8.23.1",
+    "resend": "^6.32.1",
     "stripe": "^23.0.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",
+    "@types/pg": "^8.23.1",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.7.3"
   }

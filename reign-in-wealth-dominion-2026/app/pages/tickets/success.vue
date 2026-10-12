@@ -11,6 +11,9 @@ const sessionId = computed(() =>
   String(route.query.session_id || ''),
 )
 
+const registrationNumber = ref('')
+const emailPending = ref(false)
+
 const loading = ref(true)
 const paid = ref(false)
 const ticketName = ref('')
@@ -39,6 +42,7 @@ useHead({
   ],
 })
 
+
 onMounted(async () => {
   if (!sessionId.value) {
     loading.value = false
@@ -46,37 +50,61 @@ onMounted(async () => {
     return
   }
 
+  const deadline = Date.now() + 30_000
+  let delay = 1500
+
   try {
-    const result = await $fetch<{
-      paid: boolean
-      status: string | null
-      ticketName: string | null
-      quantity: number
-      attendeeName: string | null
-      attendeeEmail: string | null
-    }>('/api/checkout/status', {
-      query: {
-        session_id: sessionId.value,
-      },
-    })
+    while (Date.now() < deadline) {
+      try {
+        const result = await $fetch<{
+          paid: boolean
+          status?: string | null
+          ticketName?: string | null
+          quantity?: number
+          attendeeName?: string | null
+          attendeeEmail?: string | null
+          registrationNumber?: string | null
+          emailErrors?: string[]
+        }>('/api/checkout/status', {
+          query: { session_id: sessionId.value },
+          retry: 0,
+          timeout: 10000,
+        })
 
-    paid.value = result.paid
-    ticketName.value = result.ticketName || ''
-    quantity.value = result.quantity
-    attendeeName.value = result.attendeeName || ''
-    attendeeEmail.value = result.attendeeEmail || ''
+        if (result.paid) {
+          paid.value = true
+          ticketName.value = result.ticketName || ''
+          quantity.value = result.quantity || 1
+          attendeeName.value = result.attendeeName || ''
+          attendeeEmail.value = result.attendeeEmail || ''
+          registrationNumber.value =
+            result.registrationNumber || ''
+          emailPending.value =
+            (result.emailErrors?.length || 0) > 0
 
-    if (result.paid) {
-      clearCheckoutSession()
+          clearCheckoutSession()
+          return
+        }
+      } catch (err: any) {
+        // Temporary network/Stripe errors should not immediately
+        // make the attendee believe their payment failed.
+        console.warn('Payment verification will retry:', err)
+      }
+
+      await new Promise(resolve =>
+        setTimeout(resolve, delay),
+      )
+
+      delay = Math.min(delay * 1.5, 5000)
     }
-  } catch (err: any) {
+
     error.value =
-      err?.data?.message ||
-      'We could not verify your checkout yet.'
+      'Your payment is still being confirmed. Please do not pay again. Refresh this page in a moment or contact the organizer if the issue persists.'
   } finally {
     loading.value = false
   }
 })
+
 </script>
 
 <template>
@@ -141,6 +169,19 @@ onMounted(async () => {
               {{ ticketName }}
             </div>
 
+            <div
+              v-if="registrationNumber"
+              class="mt-4 border-t border-white/10 pt-4"
+            >
+              <div class="text-[9px] font-bold uppercase tracking-[.16em] text-gold">
+                Registration number
+              </div>
+
+              <div class="mt-2 font-mono text-lg text-cream">
+                {{ registrationNumber }}
+              </div>
+            </div>
+
             <div class="mt-5 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">
               <div>
                 <div class="text-[9px] font-bold uppercase tracking-[.16em] text-cream/40">
@@ -189,12 +230,15 @@ onMounted(async () => {
               </div>
 
               <p class="mt-2 text-sm leading-6 text-cream/60">
-                Your DOMINION confirmation email has been sent
-                to
-                <strong class="text-cream/85">
-                  {{ attendeeEmail }}
-                </strong>.
-                It contains your private venue details.
+                <template v-if="emailPending">
+                  Your payment is confirmed. We're finishing the email delivery.
+                  Please check your inbox shortly.
+                </template>
+                <template v-else>
+                  Your registration details are being sent to
+                  <strong class="text-cream/85">{{ attendeeEmail }}</strong>.
+                  Keep your registration number for check-in.
+                </template>
               </p>
             </div>
           </div>

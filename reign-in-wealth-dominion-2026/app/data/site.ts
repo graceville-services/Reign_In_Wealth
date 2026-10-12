@@ -325,7 +325,7 @@ export const site = {
       title: 'Put your brand behind the movement.',
       body: 'Partner with Reign in Wealth to connect your organization with entrepreneurs, investors, professionals, families, and emerging leaders committed to ownership, wealth creation, faith, and impact.',
       cta: 'Become a Sponsor',
-      email: 'YOUR-SPONSOR-EMAIL@example.com',
+      email: 'Info@reigninwealth.com',
     },
 
     donations: {
