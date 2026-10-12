@@ -173,7 +173,7 @@ export async function sendTicketWelcomeEmail(
 
   const logoUrl =
     process.env.DOMINION_LOGO_URL ||
-    `${siteUrl}/logo.png`
+    `${siteUrl}/images/logo.png`
 
   const hotelUrl = site.hotel.bookingUrl
   const admissionNote = escapeHtml(getAdmissionNote(ticket.id))
