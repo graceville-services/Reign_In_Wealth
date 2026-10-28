@@ -73,7 +73,7 @@ const buildPillars = [
     number: '05',
     title: 'STRENGTHEN YOUR MIND, BODY & FAITH',
     description:
-      'Experience conversations about health, wellness, mindset, and biblical principles that support your personal, professional, and financial growth.',
+      'Experience conversations about health, wellness, mindset, and biblical principles that aid your personal, professional, and financial growth.',
     image: 'https://images.pexels.com/photos/12745511/pexels-photo-12745511.jpeg?_gl=1*jvnj1v*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTE1NTAyNzEkbzQkZzEkdDE3OTE1NTA0OTQkajYwJGwwJGgw',
     imageAlt: 'Wellness, personal growth, and reflection',
     icon: HeartPulse,
