@@ -6,7 +6,8 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "preview": "nuxt preview",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",
