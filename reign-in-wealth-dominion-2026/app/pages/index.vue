@@ -38,7 +38,7 @@ const buildPillars = [
     title: 'BUILD WEALTH THROUGH REAL ESTATE',
     description:
       'Discover strategies for purchasing investment properties, understanding real estate development, and exploring opportunities to build a property portfolio.',
-    image: 'https://images.pexels.com/photos/4082527/pexels-photo-4082527.jpeg?_gl=1*hfcubx*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTE1NTAyNzEkbzQkZzAkdDE3OTE1NTAyNzEkajYwJGwwJGgw',
+    image: 'https://images.pexels.com/photos/10854904/pexels-photo-10854904.jpeg?_gl=1*139lgaj*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTMyMjA5MTUkbzckZzEkdDE3OTMyMjEwNTckajM3JGwwJGgw',
     imageAlt: 'Real estate and property investment',
     icon: Building2,
   },
@@ -47,7 +47,7 @@ const buildPillars = [
     title: 'TURN YOUR IDEAS INTO INCOME',
     description:
       'Learn about entrepreneurship, starting and operating a group-home business, and building a business with purpose and a sustainable foundation.',
-    image: 'https://images.pexels.com/photos/6693652/pexels-photo-6693652.jpeg?_gl=1*l72qys*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTM1MjA4NzkkbzgkZzEkdDE3OTM1MjA5MTEkajI4JGwwJGgw',
+    image: 'https://images.pexels.com/photos/27086194/pexels-photo-27086194.jpeg?_gl=1*5e7job*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTE1NTAyNzEkbzQkZzEkdDE3OTE1NTAzNTEkajU5JGwwJGgw',
     imageAlt: 'Entrepreneur working on a business plan',
     icon: Lightbulb,
   },
@@ -73,7 +73,7 @@ const buildPillars = [
     number: '05',
     title: 'STRENGTHEN YOUR MIND, BODY & FAITH',
     description:
-      'Experience conversations about health, wellness, mindset, and biblical principles that support your personal, professional, and financial growth.',
+      'Experience conversations about health, wellness, mindset, and biblical principles that aid your personal, professional, and financial growth.',
     image: 'https://images.pexels.com/photos/12745511/pexels-photo-12745511.jpeg?_gl=1*jvnj1v*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTE1NTAyNzEkbzQkZzEkdDE3OTE1NTA0OTQkajYwJGwwJGgw',
     imageAlt: 'Wellness, personal growth, and reflection',
     icon: HeartPulse,
