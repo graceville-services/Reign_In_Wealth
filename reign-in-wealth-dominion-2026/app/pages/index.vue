@@ -47,7 +47,7 @@ const buildPillars = [
     title: 'TURN YOUR IDEAS INTO INCOME',
     description:
       'Learn about entrepreneurship, starting and operating a group-home business, and building a business with purpose and a sustainable foundation.',
-    image: 'https://images.pexels.com/photos/27086194/pexels-photo-27086194.jpeg?_gl=1*5e7job*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTE1NTAyNzEkbzQkZzEkdDE3OTE1NTAzNTEkajU5JGwwJGgw',
+    image: 'https://images.pexels.com/photos/6693652/pexels-photo-6693652.jpeg?_gl=1*l72qys*_ga*MTcwODY2MDI4OS4xNzg1ODY3OTYz*_ga_8JE65Q40S6*czE3OTM1MjA4NzkkbzgkZzEkdDE3OTM1MjA5MTEkajI4JGwwJGgw',
     imageAlt: 'Entrepreneur working on a business plan',
     icon: Lightbulb,
   },
