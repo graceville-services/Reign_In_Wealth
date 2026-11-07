@@ -33,7 +33,8 @@ export const site = {
     {
       id: 'regular',
       name: 'Regular Admission',
-      price: 250,
+      originalPrice: 250,
+      price: 150,
       currency: 'USD',
       stripePriceId: 'price_1UNBYMGclMcVOhpFTngOzz4H',
       eyebrow: 'THE DOMINION EXPERIENCE',
@@ -59,7 +60,8 @@ export const site = {
     {
       id: 'vip',
       name: 'VIP Admission',
-      price: 397,
+      originalPrice: 397,
+      price: 297,
       currency: 'USD',
       stripePriceId: 'price_1UNBYqGclMcVOhpFb48ZcYkR',
       eyebrow: 'ACCESS. STRATEGY. TRANSFORMATION.',
@@ -81,7 +83,8 @@ export const site = {
     {
       id: 'gala',
       name: 'Fundraising Gala Only',
-      price: 197,
+      originalPrice: 197,
+      price: 97,
       currency: 'USD',
       stripePriceId: 'price_1UNBZIGclMcVOhpFSilUtAkJ',
       eyebrow: 'THE EVENING',
