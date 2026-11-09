@@ -13,6 +13,7 @@ import { site, type Ticket } from '~/data/site'
 import CheckoutDrawer from '~/components/CheckoutDrawer.vue'
 
 const { revealAll } = useReveal()
+const promoEnabled = useTicketPromotion()
 
 const selectedTicket = ref<Ticket | null>(null)
 
@@ -22,9 +23,6 @@ const formatPrice = (amount: number) =>
     currency: 'USD',
     maximumFractionDigits: 0,
   }).format(amount)
-
-const getSavings = (ticket: Ticket) =>
-  ticket.originalPrice - ticket.price
 
 const galaTicket = site.tickets.find(
   (ticket) => ticket.id === 'gala',
@@ -37,7 +35,7 @@ const selectTicket = (ticket: Ticket) => {
 useSeo({
   title: 'Tickets | DOMINION 2026',
   description:
-    'Save $100 on every DOMINION 2026 ticket. Choose Regular Admission, VIP access, or the Fundraising Gala. December 11–12 in Yonkers, New York.',
+    'DOMINION 2026 tickets: Regular $250, VIP $397, and Gala $197. December 11–12 in Yonkers, New York.',
   path: '/tickets',
 })
 
@@ -72,6 +70,7 @@ onMounted(() => {
 
             <!-- PROMOTIONAL BADGE -->
             <div
+              v-if="promoEnabled"
               class="mb-6 inline-flex flex-wrap items-center gap-3 border border-gold/40 bg-gold/10 px-4 py-3 backdrop-blur-md"
             >
               <Sparkles
@@ -88,7 +87,7 @@ onMounted(() => {
               <span
                 class="bg-gold px-3 py-1.5 font-mono text-[10px] font-black uppercase tracking-[.12em] text-black"
               >
-                Save $100
+                Save $100 with a promo code
               </span>
             </div>
 
@@ -116,10 +115,11 @@ onMounted(() => {
             </p>
 
             <p
+              v-if="promoEnabled"
               class="mt-4 max-w-xl text-sm font-semibold leading-7 text-gold"
             >
               Your next level starts here.
-              Enjoy $100 off every admission experience.
+              Have a promo code? Enter it on Stripe’s payment page for $100 off your order.
             </p>
 
             <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3">
@@ -140,7 +140,7 @@ onMounted(() => {
               href="#tickets"
               class="mt-9 inline-flex items-center gap-3 border border-gold bg-gold px-6 py-4 text-[10px] font-extrabold uppercase tracking-[.18em] text-black transition duration-300 hover:bg-cream hover:border-cream"
             >
-              Claim Your $100 Savings
+              Choose Your Ticket
               <ArrowDown :size="15" />
             </a>
 
@@ -150,7 +150,7 @@ onMounted(() => {
     </section>
 
     <!-- PROMOTIONAL STRIP -->
-    <section class="border-b border-gold/30 bg-black text-cream">
+    <section v-if="promoEnabled" class="border-b border-gold/30 bg-black text-cream">
       <div
         class="section-pad flex flex-col items-center justify-between gap-5 py-5 md:flex-row"
       >
@@ -165,12 +165,12 @@ onMounted(() => {
             <div
               class="font-mono text-[10px] font-black uppercase tracking-[.17em] text-gold"
             >
-              $100 Off Every Ticket
+              $100 Off Your Order With a Valid Promo Code
             </div>
 
             <p class="mt-1 text-xs text-cream/60">
-              Regular. VIP. Gala. Your experience,
-              now for less.
+              Regular. VIP. Gala. Choose your tickets, then select
+              Add promotion code on Stripe’s payment page.
             </p>
           </div>
         </div>
@@ -218,6 +218,7 @@ onMounted(() => {
 
           <!-- SALE MESSAGE -->
           <div
+            v-if="promoEnabled"
             class="mt-6 inline-flex flex-wrap items-center gap-3 border-l-2 border-gold bg-white px-5 py-4 shadow-sm"
           >
             <Sparkles
@@ -230,7 +231,7 @@ onMounted(() => {
             >
               A special invitation to DOMINION.
               <span class="font-extrabold text-primary">
-                Every ticket is now $100 less.
+                Enter a valid promo code on Stripe’s payment page to save $100 per order.
               </span>
             </p>
           </div>
@@ -272,12 +273,13 @@ onMounted(() => {
                   {{
                     ticket.featured
                       ? 'MOST EXCLUSIVE EXPERIENCE'
-                      : 'DOMINION SPECIAL OFFER'
+                      : 'DOMINION ADMISSION'
                   }}
                 </span>
               </div>
 
               <span
+                v-if="promoEnabled"
                 class="shrink-0 px-2.5 py-1.5 font-mono text-[9px] font-black uppercase tracking-[.08em]"
                 :class="
                   ticket.featured
@@ -285,7 +287,7 @@ onMounted(() => {
                     : 'border border-gold/50 text-gold'
                 "
               >
-                -{{ formatPrice(getSavings(ticket)) }}
+                PROMO ELIGIBLE
               </span>
             </div>
 
@@ -314,22 +316,11 @@ onMounted(() => {
               <div
                 class="relative mt-7 border-y border-forest/10 bg-cream/60 px-5 py-6"
               >
-                <!-- ORIGINAL PRICE -->
-                <div class="flex flex-wrap items-center gap-3">
-                  <span
-                    class="font-mono text-[9px] font-bold uppercase tracking-[.15em] text-forest/45"
-                  >
-                    Original Price
-                  </span>
+                <p class="mb-3 font-mono text-[9px] font-bold uppercase tracking-[.15em] text-forest/55">
+                  Ticket Price
+                </p>
 
-                  <span
-                    class="text-lg font-semibold text-forest/45 line-through decoration-2 decoration-red-500/70"
-                  >
-                    {{ formatPrice(ticket.originalPrice) }}
-                  </span>
-                </div>
-
-                <!-- DISCOUNTED PRICE -->
+                <!-- STANDARD PRICE -->
                 <div class="mt-2 flex flex-wrap items-end gap-2">
                   <span
                     class="font-serif text-5xl font-bold leading-none tracking-tight text-forest md:text-6xl"
@@ -344,8 +335,9 @@ onMounted(() => {
                   </span>
                 </div>
 
-                <!-- SAVINGS -->
+                <!-- CODE-ONLY OFFER -->
                 <div
+                  v-if="promoEnabled"
                   class="mt-4 inline-flex items-center gap-2 border border-gold/30 bg-gold/10 px-3 py-2"
                 >
                   <Check
@@ -356,7 +348,7 @@ onMounted(() => {
                   <span
                     class="font-mono text-[10px] font-extrabold uppercase tracking-[.12em] text-forest"
                   >
-                    You Save {{ formatPrice(getSavings(ticket)) }}
+                    $100 off your order with a valid promo code
                   </span>
                 </div>
               </div>

@@ -436,7 +436,7 @@ onMounted(() => {
           </h2>
 
           <p class="mt-6 text-sm leading-8 text-white/65 md:text-base">
-            For just $147 more, unlock an exclusive Friday afternoon
+            For just ${{ (vipTicket?.price ?? 397) - (regularTicket?.price ?? 250) }} more, unlock an exclusive Friday afternoon
             designed for deeper learning, meaningful connections, and
             conversations that could change how you approach wealth.
           </p>
@@ -451,7 +451,7 @@ onMounted(() => {
                 </p>
 
                 <p class="mt-2 font-serif text-5xl">
-                  $397
+                  ${{ vipTicket?.price ?? 397 }}
                 </p>
               </div>
 
@@ -506,7 +506,7 @@ onMounted(() => {
           </div>
 
           <p class="mt-4 text-xs text-white/40">
-            Regular Admission: $250 · VIP Experience: $397 · Upgrade: $147
+            Regular Admission: ${{ regularTicket?.price ?? 250 }} · VIP Experience: ${{ vipTicket?.price ?? 397 }} · Upgrade: ${{ (vipTicket?.price ?? 397) - (regularTicket?.price ?? 250) }}
           </p>
         </div>
 
@@ -1012,7 +1012,7 @@ onMounted(() => {
           </p>
 
           <p class="mt-5 text-sm font-semibold text-gold-light">
-            Regular $250 · VIP $397 · Gala Only $197
+            Regular ${{ regularTicket?.price ?? 250 }} · VIP ${{ vipTicket?.price ?? 397 }} · Gala Only ${{ galaTicket?.price ?? 197 }}
           </p>
 
           <p class="mt-2 text-xs text-white/40">

@@ -6,3 +6,7 @@ node_modules
 !.env.example
 .DS_Store
 *.log
+
+# Local promo installer recovery files
+.dominion-promo-backups/
+.dominion-promo-install.lock

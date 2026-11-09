@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ArrowUpRight, Check, Sparkles } from 'lucide-vue-next'
-import type { Ticket } from '~/data/site'
+import { site, type Ticket } from '~/data/site'
 
 const props = defineProps<{
   ticket: Ticket
 }>()
+
+const promoEnabled = useTicketPromotion()
+
+const regularPrice = site.tickets.find(ticket => ticket.id === 'regular')!.price
 
 const emit = defineEmits<{
   buy: [ticket: Ticket]
@@ -77,13 +81,17 @@ const emit = defineEmits<{
       </span>
     </div>
 
+    <p v-if="promoEnabled" class="mt-3 text-xs leading-6 text-cream/65">
+      Have a promo code? Enter it on Stripe’s payment page for $100 off your order.
+    </p>
+
     <!-- VIP PRICE CONTEXT -->
     <p
       v-if="ticket.id === 'vip'"
       class="mt-3 inline-flex w-fit items-center gap-2 border border-gold/25 bg-gold/[.07] px-3 py-2 text-[10px] font-semibold text-gold"
     >
       <Sparkles :size="12" />
-      $147 more than Regular · Includes all Regular benefits
+      ${{ ticket.price - regularPrice }} more than Regular · Includes all Regular benefits
     </p>
 
     <p class="mt-5 min-h-[84px] max-w-md text-sm leading-7 text-cream/75">

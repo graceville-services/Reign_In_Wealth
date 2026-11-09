@@ -26,13 +26,14 @@ export interface TicketEmailData {
   ticketName: string
   ticketId?: string
   quantity: number
+  /** Verified Stripe session.amount_total in USD cents; never a catalogue estimate. */
+  amountTotal: number
   registrationNumber?: string
 }
 
 interface TicketDetails {
   id: string
   name: string
-  price: number
   description: string
   features: string[]
 }
@@ -75,7 +76,6 @@ function getTicketDetails(
   return {
     id: ticket.id,
     name: ticket.name,
-    price: ticket.price,
     description: ticket.description,
     features: ticket.features,
   }
@@ -178,7 +178,11 @@ export async function sendTicketWelcomeEmail(
   const hotelUrl = site.hotel.bookingUrl
   const admissionNote = escapeHtml(getAdmissionNote(ticket.id))
 
-  const total = ticket.price * quantity
+  if (!Number.isSafeInteger(data.amountTotal) || data.amountTotal < 0) {
+    throw new Error('The verified payment total in USD cents is required.')
+  }
+
+  const total = data.amountTotal / 100
   const formattedTotal = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

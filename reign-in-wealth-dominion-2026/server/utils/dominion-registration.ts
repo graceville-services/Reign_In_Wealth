@@ -2,6 +2,7 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { paidPromotionCode } from './ticket-checkout.ts'
 
 function getConfig() {
   const config = {
@@ -357,6 +358,22 @@ export async function processPaidSession(sessionId: string) {
        <p style="font-size:12px;color:#b7b0a3;">The hotel rate previously advertised was $169 per night, with a November 11, 2026 booking deadline. Availability and rates are subject to the hotel's terms.</p>`
     : '<p>Please contact the event organizer for the official hotel reservation link.</p>'
 
+  // Read paid amounts from the verified Stripe session, never today's catalogue.
+  // This preserves historic registrations after a price or promotion changes.
+  const amountTotal = session.amount_total
+  const subtotal = session.amount_subtotal
+  const discountAmount = session.total_details?.amount_discount || 0
+  const promoCode = await paidPromotionCode(session, stripe)
+  const currency = session.currency || 'usd'
+  const formatPaidAmount = (value: number) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  }).format(value / 100)
+  const amount = typeof amountTotal === 'number' ? formatPaidAmount(amountTotal) : 'Unavailable'
+  const discountHtml = discountAmount > 0
+    ? `<p><strong>Discount${promoCode ? ` (${escapeHtml(promoCode)})` : ''}:</strong> ${escapeHtml(formatPaidAmount(discountAmount))}</p>`
+    : ''
+
   const attendeeHtml = emailLayout(`
     <p>Hello ${name},</p>
 
@@ -372,6 +389,8 @@ export async function processPaidSession(sessionId: string) {
       <div style="color:#c9a85c;font-size:11px;letter-spacing:2px;">TICKET</div>
       <div style="font-size:22px;margin:8px 0;">${safeTicket}</div>
       <p>Quantity: ${registration.quantity}</p>
+      ${discountHtml}
+      <p><strong>Amount paid:</strong> ${escapeHtml(amount)}</p>
       <p>Dates: December 11–12, 2026</p>
       <p>Location: Yonkers, New York</p>
     </div>
@@ -387,16 +406,6 @@ export async function processPaidSession(sessionId: string) {
     <p>REIGN IN WEALTH<br>DOMINION 2026</p>
   `)
 
-  const amount =
-    typeof registration.amount_total === 'number'
-      ? new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: (
-            registration.currency || 'usd'
-          ).toUpperCase(),
-        }).format(registration.amount_total / 100)
-      : 'Unavailable'
-
   const organizerHtml = emailLayout(`
     <h2 style="font-family:Georgia,serif;font-weight:normal;">
       New ticket purchase
@@ -408,6 +417,7 @@ export async function processPaidSession(sessionId: string) {
     <p><strong>Email:</strong> ${escapeHtml(registration.attendee_email)}</p>
     <p><strong>Ticket:</strong> ${safeTicket} (${escapeHtml(registration.ticket_id)})</p>
     <p><strong>Quantity:</strong> ${registration.quantity}</p>
+    ${discountHtml}
     <p><strong>Amount paid:</strong> ${escapeHtml(amount)}</p>
     <p><strong>Stripe session:</strong> ${escapeHtml(session.id)}</p>
   `)
@@ -446,6 +456,11 @@ export async function processPaidSession(sessionId: string) {
     quantity: registration.quantity,
     attendeeName: registration.attendee_name,
     attendeeEmail: registration.attendee_email,
+    amountTotal,
+    subtotal,
+    discountAmount,
+    promoCode,
+    currency,
     emailErrors,
   }
 }

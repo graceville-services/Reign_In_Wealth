@@ -24,30 +24,30 @@ export function useTicketCheckout() {
   ) => {
     if (!import.meta.client) return
 
-    sessionStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        ticketId: ticket.id,
-        ticketName: ticket.name,
-        quantity,
-        attendeeName: attendee.name,
-        attendeeEmail: attendee.email,
-        createdAt: new Date().toISOString(),
-      }),
-    )
+    try {
+      sessionStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          ticketId: ticket.id,
+          ticketName: ticket.name,
+          quantity,
+          attendeeName: attendee.name,
+          attendeeEmail: attendee.email,
+          createdAt: new Date().toISOString(),
+        }),
+      )
+    } catch {
+      // Checkout remains available when browser storage is blocked.
+    }
   }
 
   const getSavedCheckout = () => {
     if (!import.meta.client) return null
 
-    const saved = sessionStorage.getItem(STORAGE_KEY)
-
-    if (!saved) return null
-
     try {
-      return JSON.parse(saved)
+      const saved = sessionStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : null
     } catch {
-      sessionStorage.removeItem(STORAGE_KEY)
       return null
     }
   }
@@ -55,7 +55,11 @@ export function useTicketCheckout() {
   const clearCheckoutSession = () => {
     if (!import.meta.client) return
 
-    sessionStorage.removeItem(STORAGE_KEY)
+    try {
+      sessionStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // Browser storage may be unavailable.
+    }
   }
 
   const checkout = async (

@@ -21,6 +21,15 @@ const quantity = ref(1)
 const attendeeName = ref('')
 const attendeeEmail = ref('')
 const error = ref('')
+const amountTotal = ref<number | null>(null)
+const paymentSubtotal = ref<number | null>(null)
+const discountAmount = ref(0)
+const promoCode = ref('')
+const currency = ref('USD')
+const formatPayment = (cents: number) => new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: currency.value,
+}).format(cents / 100)
 
 const {
   clearCheckoutSession,
@@ -30,7 +39,7 @@ useSeo({
   title: 'Registration Confirmed | DOMINION 2026',
   description:
     'Your DOMINION 2026 registration has been confirmed.',
-  path: '/success',
+  path: '/tickets/success',
 })
 
 useHead({
@@ -65,6 +74,11 @@ onMounted(async () => {
           attendeeEmail?: string | null
           registrationNumber?: string | null
           emailErrors?: string[]
+          amountTotal?: number | null
+          subtotal?: number | null
+          discountAmount?: number
+          promoCode?: string | null
+          currency?: string | null
         }>('/api/checkout/status', {
           query: { session_id: sessionId.value },
           retry: 0,
@@ -73,6 +87,12 @@ onMounted(async () => {
 
         if (result.paid) {
           paid.value = true
+          // Only display payment amounts verified by the server with Stripe.
+          amountTotal.value = typeof result.amountTotal === 'number' ? result.amountTotal : null
+          paymentSubtotal.value = typeof result.subtotal === 'number' ? result.subtotal : null
+          discountAmount.value = result.discountAmount || 0
+          promoCode.value = result.promoCode || ''
+          currency.value = result.currency?.toUpperCase() || 'USD'
           ticketName.value = result.ticketName || ''
           quantity.value = result.quantity || 1
           attendeeName.value = result.attendeeName || ''
@@ -181,6 +201,19 @@ onMounted(async () => {
                 {{ registrationNumber }}
               </div>
             </div>
+
+            <dl v-if="amountTotal !== null" class="mt-5 space-y-3 border-t border-white/10 pt-5 text-sm">
+              <div v-if="paymentSubtotal !== null && discountAmount > 0" class="flex justify-between gap-4 text-cream/60">
+                <dt>Subtotal</dt><dd>{{ formatPayment(paymentSubtotal) }}</dd>
+              </div>
+              <div v-if="discountAmount > 0" class="flex justify-between gap-4 text-gold">
+                <dt>Promo savings<span v-if="promoCode"> ({{ promoCode }})</span></dt>
+                <dd>−{{ formatPayment(discountAmount) }}</dd>
+              </div>
+              <div class="flex justify-between gap-4 font-semibold text-cream">
+                <dt>Amount paid</dt><dd>{{ formatPayment(amountTotal) }}</dd>
+              </div>
+            </dl>
 
             <div class="mt-5 grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">
               <div>
